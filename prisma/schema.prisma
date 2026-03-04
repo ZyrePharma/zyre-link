@@ -1,0 +1,392 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// AUTHENTICATION & USERS
+// ============================================
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  emailVerified     DateTime?
+  name              String?
+  image             String?
+  password          String?   // hashed password
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  // Company info
+  role              UserRole  @default(EMPLOYEE)
+  department        String?
+  employeeId        String?   @unique
+  isActive          Boolean   @default(true)
+  officeLocation    String?
+  
+  // Relations
+  accounts          Account[]
+  sessions          Session[]
+  profile           Profile?
+  nfcCards          NfcCard[]
+  adminLogs         AdminLog[]
+  
+  @@index([email])
+  @@index([employeeId])
+  @@map("users")
+}
+
+enum UserRole {
+  EMPLOYEE
+  MANAGER
+  ADMIN
+}
+
+// NextAuth models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================
+// PROFILE & CONTENT
+// ============================================
+
+model Profile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  username        String   @unique
+  
+  // Personal info
+  firstName       String?
+  lastName        String?
+  jobTitle        String?
+  bio             String?
+  
+  // Company-specific fields
+  department      String?
+  officeLocation  String?
+  employeeId      String?
+  directManager   String?
+  teamName        String?
+  extension       String?   // Phone extension
+  
+  // Media
+  profilePhotoUrl String?
+  coverPhotoUrl   String?
+  
+  // Customization
+  theme           String   @default("company")
+  customColors    Json?    // Limited to company brand colors
+  layoutSettings  Json?
+  
+  // Settings
+  isActive        Boolean  @default(true)
+  isPublic        Boolean  @default(true)  // Public within company
+  showInDirectory Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contactMethods  ContactMethod[]
+  socialLinks     SocialLink[]
+  customLinks     CustomLink[]
+  documents       Document[]
+  views           ProfileView[]
+  nfcCards        NfcCard[]
+  
+  @@index([username])
+  @@index([department])
+  @@index([isActive])
+  @@map("profiles")
+}
+
+model ContactMethod {
+  id          String   @id @default(cuid())
+  profileId   String
+  
+  type        ContactType
+  label       String?   // "Work", "Mobile", "Office", etc.
+  value       String
+  isPrimary   Boolean  @default(false)
+  isVisible   Boolean  @default(true)
+  displayOrder Int     @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  
+  @@index([profileId])
+  @@map("contact_methods")
+}
+
+enum ContactType {
+  PHONE
+  EMAIL
+  ADDRESS
+  WEBSITE
+  EXTENSION
+}
+
+model SocialLink {
+  id           String   @id @default(cuid())
+  profileId    String
+  
+  platform     String   // "linkedin", "github", "twitter", etc.
+  url          String
+  displayOrder Int      @default(0)
+  isVisible    Boolean  @default(true)
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  profile      Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  clicks       LinkClick[]
+  
+  @@index([profileId])
+  @@map("social_links")
+}
+
+model CustomLink {
+  id           String   @id @default(cuid())
+  profileId    String
+  
+  title        String
+  url          String
+  description  String?
+  icon         String?
+  displayOrder Int      @default(0)
+  isVisible    Boolean  @default(true)
+  clickCount   Int      @default(0)
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  profile      Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  clicks       LinkClick[]
+  
+  @@index([profileId])
+  @@map("custom_links")
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  profileId   String
+  
+  title       String
+  fileUrl     String
+  fileType    String   // "pdf", "doc", etc.
+  fileSize    Int      // in bytes
+  
+  createdAt   DateTime @default(now())
+  
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  
+  @@index([profileId])
+  @@map("documents")
+}
+
+// ============================================
+// NFC CARDS
+// ============================================
+
+model NfcCard {
+  id              String   @id @default(cuid())
+  cardUid         String   @unique
+  activationCode  String   @unique
+  
+  userId          String?
+  profileId       String?
+  
+  cardType        String?  // "pvc", "metal", "keychain"
+  isActivated     Boolean  @default(false)
+  isLocked        Boolean  @default(false)
+  isDeactivated   Boolean  @default(false)
+  
+  // Inventory tracking
+  assignedTo      String?  // Employee name/ID
+  assignedAt      DateTime?
+  notes           String?
+  
+  activatedAt     DateTime?
+  createdAt       DateTime @default(now())
+  
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  profile         Profile? @relation(fields: [profileId], references: [id], onDelete: SetNull)
+  
+  @@index([cardUid])
+  @@index([activationCode])
+  @@index([isActivated])
+  @@map("nfc_cards")
+}
+
+// ============================================
+// ANALYTICS
+// ============================================
+
+model ProfileView {
+  id          String   @id @default(cuid())
+  profileId   String
+  
+  // Visitor info
+  visitorId   String?  // Logged-in user ID if authenticated
+  sessionId   String?
+  ipAddress   String?
+  userAgent   String?
+  
+  // Source tracking
+  referrer    String?
+  sourceType  SourceType?
+  
+  // Device
+  deviceType  String?  // "mobile", "desktop", "tablet"
+  browser     String?
+  os          String?
+  
+  viewedAt    DateTime @default(now())
+  
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  
+  @@index([profileId])
+  @@index([viewedAt])
+  @@map("profile_views")
+}
+
+enum SourceType {
+  QR
+  NFC
+  LINK
+  DIRECTORY
+  DIRECT
+}
+
+model LinkClick {
+  id            String   @id @default(cuid())
+  profileId     String   // Denormalized for easier queries
+  
+  linkType      LinkType
+  socialLinkId  String?
+  customLinkId  String?
+  
+  ipAddress     String?
+  userAgent     String?
+  
+  clickedAt     DateTime @default(now())
+  
+  socialLink    SocialLink? @relation(fields: [socialLinkId], references: [id], onDelete: Cascade)
+  customLink    CustomLink? @relation(fields: [customLinkId], references: [id], onDelete: Cascade)
+  
+  @@index([profileId])
+  @@index([clickedAt])
+  @@map("link_clicks")
+}
+
+enum LinkType {
+  SOCIAL
+  CUSTOM
+  CONTACT
+  DOCUMENT
+}
+
+// ============================================
+// COMPANY SETTINGS
+// ============================================
+
+model CompanySettings {
+  id                String   @id @default(cuid())
+  
+  // Branding
+  companyName       String
+  logoUrl           String?
+  primaryColor      String   @default("#3B82F6")
+  secondaryColor    String   @default("#1E40AF")
+  
+  // Default settings
+  defaultTheme      String   @default("company")
+  allowCustomThemes Boolean  @default(false)
+  
+  // Features
+  enableDirectory   Boolean  @default(true)
+  enableAnalytics   Boolean  @default(true)
+  requireApproval   Boolean  @default(false)  // Require admin approval for new profiles
+  
+  updatedAt         DateTime @updatedAt
+  
+  @@map("company_settings")
+}
+
+model Department {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  managerId   String?
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("departments")
+}
+
+// ============================================
+// ADMIN LOGS
+// ============================================
+
+model AdminLog {
+  id          String   @id @default(cuid())
+  userId      String
+  action      String   // "CREATED_USER", "ASSIGNED_CARD", "DEACTIVATED_PROFILE", etc.
+  targetId    String?  // ID of affected resource
+  details     Json?
+  
+  createdAt   DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([createdAt])
+  @@map("admin_logs")
+}
