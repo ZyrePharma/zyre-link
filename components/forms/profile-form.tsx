@@ -69,7 +69,7 @@ const profileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 interface ProfileFormProps {
-  initialData?: Partial<ProfileFormValues> | null;
+  initialData?: any; // The initial data from prisma `user.profile`
 }
 
 export function ProfileForm({ initialData }: ProfileFormProps) {
@@ -94,9 +94,9 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       extension: initialData?.extension ?? "",
       profilePhotoUrl: initialData?.profilePhotoUrl ?? "",
       coverPhotoUrl: initialData?.coverPhotoUrl ?? "",
-      contactMethods: (initialData?.contactMethods as any) ?? [],
-      socialLinks: (initialData?.socialLinks as any) ?? [],
-      customLinks: (initialData?.customLinks as any) ?? [],
+      contactMethods: initialData?.contactMethods ?? [],
+      socialLinks: initialData?.socialLinks ?? [],
+      customLinks: initialData?.customLinks ?? [],
     },
   });
 

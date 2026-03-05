@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Loader2, KeyRound, CheckCircle2 } from "lucide-react";
 
-export default function AcceptInvitePage() {
+function AcceptInviteForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
@@ -138,5 +138,17 @@ export default function AcceptInvitePage() {
         © {new Date().getFullYear()} Zyre Pharmaceuticals. All rights reserved.
       </p>
     </div>
+  );
+}
+
+export default function AcceptInvitePage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <AcceptInviteForm />
+    </Suspense>
   );
 }
