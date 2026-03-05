@@ -3,8 +3,8 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { UserRole } from "@prisma/client";
 import { randomBytes } from "crypto";
-import { resend, FROM_EMAIL } from "@/lib/resend";
 import { InviteEmailHtml } from "@/emails/invite-email";
+import nodemailer from "nodemailer";
 
 export async function POST(req: Request) {
   try {
@@ -72,26 +72,37 @@ export async function POST(req: Request) {
       },
     });
 
-    // Send invite email via Resend
+    // Send invite email via Nodemailer
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const inviteUrl = `${appUrl}/invite/accept?token=${inviteToken}`;
     const inviterName = session.user.name || "Admin";
 
-    const { data: emailData, error: emailError } = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: email,
-      subject: `You're invited to Zyre Link`,
-      html: InviteEmailHtml({ name, inviteUrl, inviterName }),
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT) || 587,
+      secure: process.env.SMTP_SECURE === "true",
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD,
+      },
     });
 
-    if (emailError) {
-      console.error("[RESEND_EMAIL_ERROR]", emailError);
+    const FROM_EMAIL = process.env.SMTP_FROM || '"Zyre Link" <noreply@zyre.link>';
+
+    try {
+      const emailInfo = await transporter.sendMail({
+        from: FROM_EMAIL,
+        to: email,
+        subject: `You're invited to Zyre Link`,
+        html: InviteEmailHtml({ name, inviteUrl, inviterName }),
+      });
+      console.log("[NODEMAILER_EMAIL_SENT]", emailInfo.messageId);
+    } catch (emailError: any) {
+      console.error("[NODEMAILER_EMAIL_ERROR]", emailError);
       // Clean up user if email failed to send
       await prisma.user.delete({ where: { id: newUser.id } });
       return NextResponse.json({ message: `Failed to send invite email: ${emailError.message}` }, { status: 500 });
     }
-
-    console.log("[RESEND_EMAIL_SENT]", emailData?.id);
     return NextResponse.json({ message: "Invite sent successfully." }, { status: 201 });
   } catch (error: any) {
     console.error("[ADMIN_USERS_POST]", error);
