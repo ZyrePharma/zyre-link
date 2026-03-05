@@ -235,14 +235,12 @@ model Document {
 // ============================================
 
 model NfcCard {
-  id             String @id @default(cuid())
-  cardUid        String @unique
-  activationCode String @unique
+  id      String @id @default(cuid())
+  cardUid String @unique
 
   userId    String?
   profileId String?
 
-  cardType      String? // "pvc", "metal", "keychain"
   isActivated   Boolean @default(false)
   isLocked      Boolean @default(false)
   isDeactivated Boolean @default(false)
@@ -259,7 +257,6 @@ model NfcCard {
   profile Profile? @relation(fields: [profileId], references: [id], onDelete: SetNull)
 
   @@index([cardUid])
-  @@index([activationCode])
   @@index([isActivated])
   @@map("nfc_cards")
 }

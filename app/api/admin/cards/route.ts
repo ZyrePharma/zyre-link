@@ -26,13 +26,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Card with this serial number already registered" }, { status: 400 });
     }
 
-    // Generate a secure activation code
-    const activationCode = nanoid(10).toUpperCase();
-
     const newCard = await prisma.nfcCard.create({
       data: {
         cardUid,
-        activationCode,
         isActivated: false,
         isLocked: false
       }

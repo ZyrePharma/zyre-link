@@ -36,8 +36,6 @@ import {
 type Card = {
   id: string;
   cardUid: string;
-  activationCode: string;
-  cardType: string | null;
   isActivated: boolean;
   isLocked: boolean;
   isDeactivated: boolean;
@@ -190,11 +188,10 @@ export function CardActions({ card }: { card: Card }) {
           </DialogHeader>
           <div className="grid grid-cols-2 gap-3 pt-2">
             {[
-              { label: "Type", value: card.cardType || "Standard" },
+              { label: "Type", value: "Standard" },
               { label: "Status", value: card.isActivated ? <Badge variant={"success" as any} className="rounded-full text-xs">ACTIVATED</Badge> : <Badge variant="secondary" className="rounded-full text-xs">PENDING</Badge> },
               { label: "Locked", value: card.isLocked ? <span className="text-red-500 font-bold text-xs">YES</span> : <span className="text-green-500 font-bold text-xs">NO</span> },
               { label: "Deactivated", value: card.isDeactivated ? <span className="text-red-500 font-bold text-xs">YES</span> : <span className="text-green-500 font-bold text-xs">NO</span> },
-              { label: "Activation Code", value: <span className="font-mono text-xs">{card.activationCode}</span> },
               { label: "Assigned To", value: card.user?.name || "Unassigned" },
             ].map(({ label, value }) => (
               <div key={label} className="bg-muted/40 rounded-xl p-3 space-y-1">

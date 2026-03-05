@@ -8,8 +8,6 @@ import { Lock, StickyNote } from "lucide-react";
 export type CardRow = {
   id: string;
   cardUid: string;
-  activationCode: string;
-  cardType: string | null;
   isActivated: boolean;
   isLocked: boolean;
   isDeactivated: boolean;
@@ -23,27 +21,17 @@ export type CardRow = {
 export const cardColumns: ColumnDef<CardRow>[] = [
   {
     id: "cardInfo",
-    accessorFn: (row) => `${row.cardUid} ${row.activationCode}`,
+    accessorFn: (row) => `${row.cardUid}`,
     header: "Card Info",
     cell: ({ row }) => (
       <div className="flex flex-col gap-0.5">
         <span className="font-semibold font-mono text-foreground text-sm">{row.original.cardUid}</span>
-        <span className="text-xs text-muted-foreground">Code: {row.original.activationCode}</span>
         {row.original.notes && (
           <span className="flex items-center gap-1 text-[10px] text-amber-600 font-medium mt-0.5">
             <StickyNote className="h-3 w-3" /> Has notes
           </span>
         )}
       </div>
-    ),
-  },
-  {
-    accessorKey: "cardType",
-    header: "Type",
-    cell: ({ getValue }) => (
-      <span className="text-sm capitalize text-muted-foreground">
-        {(getValue() as string) || "Standard"}
-      </span>
     ),
   },
   {

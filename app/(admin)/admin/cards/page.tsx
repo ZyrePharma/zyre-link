@@ -12,8 +12,6 @@ export default async function NfcCardsPage() {
   const data = cards.map((c: any) => ({
     id: c.id,
     cardUid: c.cardUid,
-    activationCode: c.activationCode,
-    cardType: c.cardType,
     isActivated: c.isActivated,
     isLocked: c.isLocked,
     isDeactivated: c.isDeactivated,

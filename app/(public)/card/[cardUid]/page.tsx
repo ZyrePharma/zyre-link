@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 
-export default async function NfcHandlerPage({ params }: { params: Promise<{ cardUid: string }> }) {
+export default async function CardRedirectPage({ params }: { params: Promise<{ cardUid: string }> }) {
   const { cardUid } = await params;
 
   const card = await prisma.nfcCard.findUnique({

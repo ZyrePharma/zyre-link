@@ -30,6 +30,7 @@ import {
   UserCheck,
   UserX,
   Shield,
+  ExternalLink,
 } from "lucide-react";
 import { UserRole } from "@prisma/client";
 
@@ -127,6 +128,12 @@ export function UserActions({ user }: { user: User }) {
             <Eye className="h-4 w-4 text-primary/60" />
             View Details
           </DropdownMenuItem>
+          {user.profile?.username && (
+            <DropdownMenuItem onClick={() => window.open(`/profile/${user.profile?.username}`, "_blank")} className="gap-2 cursor-pointer rounded-lg">
+              <ExternalLink className="h-4 w-4 text-primary/60" />
+              View Public Profile
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={() => setEditOpen(true)} className="gap-2 cursor-pointer rounded-lg">
             <Pencil className="h-4 w-4 text-primary/60" />
             Edit User

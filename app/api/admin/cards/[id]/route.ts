@@ -15,7 +15,7 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { isLocked, isDeactivated, userId, profileId, notes, cardType } = body;
+    const { isLocked, isDeactivated, userId, profileId, notes } = body;
 
     // If assigning to a user, verify user exists and get their profileId
     let resolvedProfileId = profileId;
@@ -40,7 +40,6 @@ export async function PATCH(
         ...(isLocked !== undefined && { isLocked }),
         ...(isDeactivated !== undefined && { isDeactivated }),
         ...(notes !== undefined && { notes }),
-        ...(cardType !== undefined && { cardType }),
         ...(userId !== undefined && {
           userId,
           profileId: resolvedProfileId,
