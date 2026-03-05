@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
-import { UserRole } from "@prisma/client";
+import { $Enums } from "@prisma/client";
 import { randomBytes } from "crypto";
 import { resend, FROM_EMAIL } from "@/lib/resend";
 import { InviteEmailHtml } from "@/emails/invite-email";
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       data: {
         email,
         name,
-        role: role as UserRole,
+        role: role as $Enums.UserRole,
         department,
         employeeId,
         isActive: false, // account inactive until invite is accepted
