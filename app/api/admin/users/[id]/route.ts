@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
-import { UserRole } from "@prisma/client";
+
 
 // GET /api/admin/users/[id]
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -42,7 +42,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       where: { id },
       data: {
         ...(name !== undefined && { name }),
-        ...(role !== undefined && { role: role as UserRole }),
+        ...(role !== undefined && { role: role as any }),
         ...(department !== undefined && { department }),
         ...(employeeId !== undefined && { employeeId }),
         ...(isActive !== undefined && { isActive }),
