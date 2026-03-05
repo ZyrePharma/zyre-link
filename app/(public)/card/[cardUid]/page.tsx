@@ -15,10 +15,6 @@ export default async function CardRedirectPage({ params }: { params: Promise<{ c
     notFound();
   }
 
-  // If card is not activated (e.g. not assigned), redirect to a safe fallback
-  if (!card.isActivated) {
-    redirect(`/`);
-  }
 
   // If card is linked to a profile, redirect to that profile
   if (card.profile) {

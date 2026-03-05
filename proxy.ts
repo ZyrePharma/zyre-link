@@ -6,7 +6,7 @@ export default auth((req) => {
   const isAuthPage = req.nextUrl.pathname.startsWith("/login");
   const isPublicProfile = req.nextUrl.pathname.startsWith("/profile/");
   const isNFCHandler = req.nextUrl.pathname.startsWith("/n/");
-
+  const isCardRedirect = req.nextUrl.pathname.startsWith("/card/");
   if (isAuthPage) {
     if (isLoggedIn) {
       return Response.redirect(new URL("/dashboard", req.nextUrl));
@@ -14,7 +14,7 @@ export default auth((req) => {
     return;
   }
 
-  if (!isLoggedIn && !isPublicProfile && !isNFCHandler && req.nextUrl.pathname !== "/") {
+  if (!isLoggedIn && !isPublicProfile && !isNFCHandler && !isCardRedirect && req.nextUrl.pathname !== "/") {
     return Response.redirect(new URL("/login", req.nextUrl));
   }
 });

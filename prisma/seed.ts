@@ -1,8 +1,6 @@
-import { PrismaClient, UserRole } from "@prisma/client";
+import "dotenv/config";
+import { prisma } from "../lib/prisma";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
-
 async function main() {
   const hashedPassword = await bcrypt.hash("admin123", 12);
 
@@ -14,7 +12,7 @@ async function main() {
       email: "admin@zyre.com",
       name: "Admin User",
       password: hashedPassword,
-      role: UserRole.ADMIN,
+      role: "ADMIN",
       isActive: true,
     },
   });
@@ -28,7 +26,7 @@ async function main() {
       email: "john.doe@zyre.com",
       name: "John Doe",
       password: employeePassword,
-      role: UserRole.EMPLOYEE,
+      role: "EMPLOYEE",
       employeeId: "Z-10042",
       department: "Engineering",
       isActive: true,

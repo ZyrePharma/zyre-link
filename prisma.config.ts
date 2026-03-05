@@ -7,4 +7,8 @@ export default defineConfig({
   datasource: {
     url: process.env.DATABASE_URL!,
   },
+  migrations: {
+    // You can use ts-node or tsx to run the seed file
+    seed: 'npx tsx ./prisma/seed.ts',
+  },
 });

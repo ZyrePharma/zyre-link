@@ -44,6 +44,8 @@ export async function PATCH(
           userId,
           profileId: resolvedProfileId,
           assignedAt: userId ? new Date() : null,
+          isActivated: userId ? true : false,
+          activatedAt: userId ? new Date() : null,
         }),
       },
       include: { user: true, profile: true },
