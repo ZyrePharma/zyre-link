@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Github, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 
 export function LoginForm() {
   const router = useRouter();
@@ -54,14 +54,10 @@ export function LoginForm() {
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <div className="grid grid-cols-2 gap-4">
-          <Button variant="outline" onClick={() => handleSSOLogin("azure-ad")}>
-            <Mail className="mr-2 h-4 w-4" />
-            Azure AD
-          </Button>
+        {/* <div className="grid grid-cols-1 ">
           <Button variant="outline" onClick={() => handleSSOLogin("google")}>
-            <Github className="mr-2 h-4 w-4" />
-            Google
+            <Mail className="mr-2 h-4 w-4" />
+            Login with Google
           </Button>
         </div>
         <div className="relative">
@@ -73,7 +69,7 @@ export function LoginForm() {
               Or continue with email
             </span>
           </div>
-        </div>
+        </div> */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>

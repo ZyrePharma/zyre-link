@@ -3,12 +3,8 @@ import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Phone, Mail, MapPin, Linkedin, Github, Globe, Download, UserPlus } from "lucide-react";
+import { Phone, Mail, MapPin, Linkedin, Github, Globe, Download, UserPlus, ExternalLink } from "lucide-react";
 import Link from "next/link";
-
-interface ProfilePageProps {
-  params: { username: string };
-}
 
 export default async function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
@@ -27,7 +23,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
     notFound();
   }
 
-  // Track view (simple implementation)
+  // Track view
   await prisma.profileView.create({
     data: {
       profileId: profile.id,
@@ -36,98 +32,118 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4 sm:px-6">
-      <Card className="w-full max-w-sm overflow-hidden shadow-xl border-none">
-        {/* Cover Photo */}
-        <div 
-          className="h-32 bg-gradient-to-r from-blue-600 to-indigo-700 relative"
-          style={profile.coverPhotoUrl ? { backgroundImage: `url(${profile.coverPhotoUrl})`, backgroundSize: 'cover' } : {}}
-        >
-          {/* Profile Photo */}
-          <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
-            <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
+    <div className="min-h-screen bg-gradient-to-b from-muted/30 to-background flex flex-col items-center py-8 md:py-12 px-4 sm:px-6 light text-foreground">
+      <Card className="w-full max-w-lg overflow-hidden shadow-2xl border-0 bg-card text-card-foreground rounded-3xl">
+        {/* Cover Photo — Taller, with gradient overlay */}
+        <div className="relative">
+          <div 
+            className="h-52 md:h-64 bg-gradient-to-br from-primary via-primary/80 to-secondary/60 relative"
+            style={profile.coverPhotoUrl ? { backgroundImage: `url(${profile.coverPhotoUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+          >
+            {/* Gradient overlay at bottom for smooth blend */}
+            <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-card to-transparent" />
+            
+            {/* Red accent stripe */}
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-secondary via-secondary/80 to-transparent" />
+          </div>
+
+          {/* Profile Photo — Overlapping with cover */}
+          <div className="absolute -bottom-16 left-1/2 -translate-x-1/2">
+            <Avatar className="h-32 w-32 border-4 border-card shadow-xl ring-2 ring-secondary/20">
               <AvatarImage src={profile.profilePhotoUrl || ""} alt={`${profile.firstName} ${profile.lastName}`} />
-              <AvatarFallback className="text-xl bg-blue-100 text-blue-700">
+              <AvatarFallback className="text-3xl font-bold bg-gradient-to-br from-primary/10 to-secondary/10 text-primary">
                 {profile.firstName?.[0]}{profile.lastName?.[0]}
               </AvatarFallback>
             </Avatar>
           </div>
         </div>
 
-        <CardHeader className="pt-16 pb-4 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">
+        {/* Identity Section */}
+        <CardHeader className="pt-20 pb-2 text-center space-y-1">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
             {profile.firstName} {profile.lastName}
           </h1>
-          <p className="text-blue-600 font-medium">{profile.jobTitle}</p>
-          <p className="text-sm text-gray-500">{profile.department}</p>
+          <p className="text-secondary font-semibold text-sm md:text-base">{profile.jobTitle}</p>
+          {profile.department && (
+            <p className="text-xs text-muted-foreground font-medium">{profile.department}</p>
+          )}
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 px-5 md:px-6 pb-6">
+          {/* Bio */}
           {profile.bio && (
-            <p className="text-sm text-gray-600 text-center px-4">
+            <p className="text-sm text-muted-foreground text-center px-2 leading-relaxed">
               {profile.bio}
             </p>
           )}
 
-          <div className="flex justify-center gap-4">
-            <Button className="rounded-full px-6 shadow-md">
+          {/* Action Buttons */}
+          <div className="flex justify-center gap-3">
+            <Button className="rounded-full px-6 shadow-md bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-all hover:shadow-lg">
               <UserPlus className="mr-2 h-4 w-4" />
               Save Contact
             </Button>
-            <Button variant="outline" className="rounded-full shadow-sm" asChild>
+            <Button variant="outline" className="rounded-full shadow-sm border-secondary/20 hover:bg-secondary/5" asChild>
               <Link href={`/api/vcard/${profile.username}`}>
-                <Download className="h-4 w-4" />
+                <Download className="h-4 w-4 text-secondary" />
               </Link>
             </Button>
           </div>
 
-          <div className="space-y-3">
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-2">Contact</h3>
-            <div className="grid grid-cols-1 gap-2">
-              {profile.contactMethods.map((method: any) => (
-                <a
-                  key={method.id}
-                  href={method.type === 'PHONE' ? `tel:${method.value}` : method.type === 'EMAIL' ? `mailto:${method.value}` : '#'}
-                  className="flex items-center p-3 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors group"
-                >
-                  <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center shadow-sm mr-3">
-                    {method.type === 'PHONE' && <Phone className="h-4 w-4 text-blue-600" />}
-                    {method.type === 'EMAIL' && <Mail className="h-4 w-4 text-blue-600" />}
-                    {method.type === 'ADDRESS' && <MapPin className="h-4 w-4 text-blue-600" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-gray-500 truncate">{method.label || method.type}</p>
-                    <p className="text-sm font-medium text-gray-900 truncate">{method.value}</p>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {profile.socialLinks.length > 0 && (
+          {/* Contact Methods */}
+          {profile.contactMethods.length > 0 && (
             <div className="space-y-3">
-              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-2">Socials</h3>
-              <div className="flex flex-wrap justify-center gap-4">
-                {profile.socialLinks.map((link: any) => (
+              <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">Contact</h3>
+              <div className="grid grid-cols-1 gap-2">
+                {profile.contactMethods.map((method: any) => (
                   <a
-                    key={link.id}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="h-10 w-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                    key={method.id}
+                    href={method.type === 'PHONE' ? `tel:${method.value}` : method.type === 'EMAIL' ? `mailto:${method.value}` : '#'}
+                    className="flex items-center p-3 rounded-2xl bg-muted/30 hover:bg-muted/50 transition-all group border border-transparent hover:border-secondary/10"
                   >
-                    {link.platform === 'linkedin' && <Linkedin className="h-5 w-5" />}
-                    {link.platform === 'github' && <Github className="h-5 w-5" />}
-                    {link.platform === 'website' && <Globe className="h-5 w-5" />}
+                    <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm mr-3 group-hover:shadow-md transition-shadow">
+                      {method.type === 'PHONE' && <Phone className="h-4 w-4 text-secondary" />}
+                      {method.type === 'EMAIL' && <Mail className="h-4 w-4 text-secondary" />}
+                      {method.type === 'ADDRESS' && <MapPin className="h-4 w-4 text-secondary" />}
+                      {!['PHONE', 'EMAIL', 'ADDRESS'].includes(method.type) && <Globe className="h-4 w-4 text-secondary" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">{method.label || method.type}</p>
+                      <p className="text-sm font-medium truncate">{method.value}</p>
+                    </div>
                   </a>
                 ))}
               </div>
             </div>
           )}
 
+          {/* Social Links */}
+          {profile.socialLinks.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">Socials</h3>
+              <div className="flex flex-wrap justify-center gap-3">
+                {profile.socialLinks.map((link: any) => (
+                  <a
+                    key={link.id}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="h-12 w-12 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center hover:bg-secondary hover:text-secondary-foreground transition-all shadow-sm hover:shadow-md hover:scale-105"
+                  >
+                    {link.platform === 'linkedin' && <Linkedin className="h-5 w-5" />}
+                    {link.platform === 'github' && <Github className="h-5 w-5" />}
+                    {link.platform === 'website' && <Globe className="h-5 w-5" />}
+                    {!['linkedin', 'github', 'website'].includes(link.platform) && <ExternalLink className="h-5 w-5" />}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Custom Links */}
           {profile.customLinks.length > 0 && (
             <div className="space-y-3">
-              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-2">Links</h3>
+              <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">Links</h3>
               <div className="space-y-2">
                 {profile.customLinks.map((link: any) => (
                   <a
@@ -135,25 +151,32 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all group"
+                    className="flex items-center justify-between p-3.5 rounded-2xl border border-border hover:border-secondary/30 hover:bg-secondary/5 transition-all group hover:shadow-sm"
                   >
-                    <span className="text-sm font-medium text-gray-700 group-hover:text-blue-700">{link.title}</span>
-                    <Globe className="h-4 w-4 text-gray-400 group-hover:text-blue-400" />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm font-semibold text-foreground group-hover:text-secondary transition-colors">{link.title}</span>
+                      {link.description && (
+                        <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{link.description}</p>
+                      )}
+                    </div>
+                    <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-secondary/70 shrink-0 ml-3" />
                   </a>
                 ))}
               </div>
             </div>
           )}
-
         </CardContent>
         
-        <div className="bg-gray-100 p-4 text-center">
-            <p className="text-[10px] text-gray-400 tracking-widest uppercase">Powered by ZYRE LINK</p>
+        {/* Footer */}
+        <div className="bg-muted/30 p-4 text-center border-t border-border/50">
+          <p className="text-[10px] text-muted-foreground tracking-widest uppercase">
+            Powered by <span className="font-bold">ZYRE</span> <span className="text-secondary font-bold">LINK</span>
+          </p>
         </div>
       </Card>
       
-      <div className="mt-8 text-center">
-        <Button variant="ghost" size="sm" asChild>
+      <div className="mt-6 text-center">
+        <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-secondary text-xs">
           <Link href="/directory">Back to Company Directory</Link>
         </Button>
       </div>

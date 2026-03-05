@@ -3,15 +3,15 @@ import { Sidebar } from "@/components/dashboard/sidebar";
 import { Navbar } from "@/components/dashboard/navbar";
 import { redirect } from "next/navigation";
 
-export default async function DashboardLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const session = await auth();
 
-  if (!session) {
-    redirect("/login");
+  if (!session || (session.user as any).role !== "ADMIN") {
+    redirect("/dashboard");
   }
 
   return (
