@@ -9,7 +9,7 @@ export default async function NfcCardsPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  const data = cards.map((c) => ({
+  const data = cards.map((c: any) => ({
     id: c.id,
     cardUid: c.cardUid,
     activationCode: c.activationCode,
