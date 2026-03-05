@@ -9,7 +9,7 @@ export default async function EmployeeManagementPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  const data = users.map((u) => ({
+  const data = users.map((u: any) => ({
     id: u.id,
     name: u.name,
     email: u.email,
