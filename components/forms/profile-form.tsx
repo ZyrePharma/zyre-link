@@ -69,10 +69,11 @@ const profileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 interface ProfileFormProps {
+  userId?: string; // Optional userId for admin editing another user
   initialData?: any; // The initial data from prisma `user.profile`
 }
 
-export function ProfileForm({ initialData }: ProfileFormProps) {
+export function ProfileForm({ userId, initialData }: ProfileFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -147,14 +148,18 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
   const onSubmit = async (values: ProfileFormValues) => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/profile", {
-        method: "POST",
+      const endpoint = userId ? `/api/admin/users/${userId}/profile` : "/api/profile";
+      const method = userId ? "PATCH" : "POST";
+
+      const response = await fetch(endpoint, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update profile");
+        const data = await response.json();
+        throw new Error(data.error || "Failed to update profile");
       }
 
       toast.success("Profile updated successfully!");

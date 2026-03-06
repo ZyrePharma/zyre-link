@@ -134,6 +134,10 @@ export function UserActions({ user }: { user: User }) {
               View Public Profile
             </DropdownMenuItem>
           )}
+          <DropdownMenuItem onClick={() => router.push(`/admin/users/${user.id}/profile`)} className="gap-2 cursor-pointer rounded-lg">
+            <Pencil className="h-4 w-4 text-primary/60" />
+            Edit Profile
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setEditOpen(true)} className="gap-2 cursor-pointer rounded-lg">
             <Pencil className="h-4 w-4 text-primary/60" />
             Edit User
