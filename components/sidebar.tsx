@@ -12,7 +12,8 @@ import {
   LogOut,
   Users,
   X,
-  Menu
+  Menu,
+  ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
@@ -20,7 +21,7 @@ import { useState, useEffect } from "react";
 
 const mainNavItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Edit Profile", href: "/dashboard/edit-profile", icon: User },
+  { name: "Edit Profile", href: "/profile/edit", icon: User },
 ];
 
 const adminNavItems = [
@@ -96,27 +97,26 @@ export function Sidebar({ userRole }: SidebarProps) {
               >
                 <item.icon className="h-5 w-5 shrink-0" />
                 <span>{item.name}</span>
-                {/* Red accent dot on active item */}
-                {isActive && (
-                  <span className="ml-auto h-2 w-2 rounded-full bg-secondary animate-pulse" />
-                )}
+               
               </Link>
             );
           })}
         </nav>
       </div>
 
-      {/* Red accent stripe */}
-      <div className="h-0.5 bg-gradient-to-r from-secondary via-secondary/50 to-transparent mx-4" />
+      {/* Subtle separator */}
+      <div className="h-px bg-sidebar-border/50 mx-4" />
 
       <div className="p-4 mt-auto">
         <Button 
           variant="ghost" 
-          className="w-full flex justify-start space-x-3 text-secondary hover:bg-secondary/10 hover:text-secondary transition-colors"
+          className="group w-full flex justify-between items-center px-4 py-3 text-sidebar-foreground/70 hover:bg-destructive/10 hover:text-destructive transition-all duration-300 rounded-xl"
           onClick={() => signOut()}
         >
-          <LogOut className="h-5 w-5" />
-          <span>Log Out</span>
+          <div className="flex items-center space-x-3">
+            <LogOut className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
+            <span className="font-medium">Log Out</span>
+          </div>
         </Button>
       </div>
     </>

@@ -180,7 +180,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
       {session && (
         <div className="mt-6 text-center pb-8 sm:pb-0">
           <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-primary/80 text-xs">
-            <Link href="/directory">Back to Company Directory</Link>
+            <Link href="/dashboard">Back to Dashboard</Link>
           </Button>
         </div>
       )}

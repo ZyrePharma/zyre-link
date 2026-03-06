@@ -27,7 +27,6 @@ export default async function EmployeeManagementPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex flex-col gap-1 md:gap-2">
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Employee Management</h1>
-          <p className="text-sm md:text-base text-muted-foreground">Manage user accounts, roles, and profile statuses.</p>
         </div>
         <InviteUserDialog />
       </div>

@@ -1,13 +1,16 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { 
   Bell, 
   MessageSquare, 
   Globe,
-  Settings
+  Settings,
+  LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { signOut } from "next-auth/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,14 +24,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 interface NavbarProps {
   userName?: string | null;
   userImage?: string | null;
+  userRole?: string | null;
 }
 
-export function Navbar({ userName, userImage }: NavbarProps) {
+export function Navbar({ userName, userImage, userRole }: NavbarProps) {
   const pathname = usePathname();
 
   const getPageTitle = (path: string) => {
     if (path === "/dashboard") return "Dashboard Overview";
-    if (path === "/dashboard/edit-profile") return "Profile Settings";
+    if (path === "/profile/edit") return "Profile Settings";
     if (path.startsWith("/admin/users")) return "User Management";
     if (path.startsWith("/admin/cards")) return "Card Management";
     if (path === "/admin") return "Admin Console";
@@ -50,15 +54,7 @@ export function Navbar({ userName, userImage }: NavbarProps) {
 
         {/* Right Side Actions */}
         <div className="flex items-center gap-2 md:gap-4">
-          <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-secondary transition-colors h-8 w-8 md:h-10 md:w-10">
-            <MessageSquare className="h-4 w-4 md:h-5 md:w-5" />
-          </Button>
-          
-          <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-secondary transition-colors h-8 w-8 md:h-10 md:w-10">
-            <Bell className="h-4 w-4 md:h-5 md:w-5" />
-            <span className="absolute top-1.5 right-2 h-2 w-2 rounded-full bg-secondary ring-2 ring-background" />
-          </Button>
-
+        
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 md:h-10 md:w-10 rounded-full p-0 border border-primary/10 hover:border-secondary/30 transition-all">
@@ -74,19 +70,29 @@ export function Navbar({ userName, userImage }: NavbarProps) {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">{userName}</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    Connected to Zyre Cloud
-                  </p>
+                  
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Account Settings</span>
+              <DropdownMenuItem className="cursor-pointer" asChild>
+                <Link href={userRole === "ADMIN" ? "/admin" : "/profile/edit"}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Account Settings</span>
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
-                <Globe className="mr-2 h-4 w-4" />
-                <span>View Public Profile</span>
+              {userRole !== "ADMIN" && (
+                <DropdownMenuItem className="cursor-pointer">
+                  <Globe className="mr-2 h-4 w-4" />
+                  <span>View Public Profile</span>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                className="cursor-pointer text-destructive focus:text-destructive"
+                onClick={() => signOut()}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

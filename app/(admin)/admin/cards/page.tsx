@@ -27,7 +27,6 @@ export default async function NfcCardsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex flex-col gap-1 md:gap-2">
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">NFC Card Management</h1>
-          <p className="text-sm md:text-base text-muted-foreground">Monitor card inventory, assign to employees, and manage security.</p>
         </div>
         <RegisterCardDialog />
       </div>

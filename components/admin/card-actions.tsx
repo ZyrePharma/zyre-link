@@ -54,11 +54,16 @@ export function CardActions({ card }: { card: Card }) {
   const [assignOpen, setAssignOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const [users, setUsers] = useState<SystemUser[]>([]);
   const [selectedUserId, setSelectedUserId] = useState("");
   const [notesValue, setNotesValue] = useState(card.notes || "");
+  const [editForm, setEditForm] = useState({
+    cardUid: card.cardUid,
+    notes: card.notes || "",
+  });
 
   // Fetch users for assignment dropdown
   useEffect(() => {
@@ -134,6 +139,20 @@ export function CardActions({ card }: { card: Card }) {
     }
   };
 
+  const handleEdit = async () => {
+    setIsLoading(true);
+    try {
+      await patch(editForm);
+      toast.success("Card updated.");
+      setEditOpen(false);
+      router.refresh();
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       <DropdownMenu>
@@ -150,6 +169,9 @@ export function CardActions({ card }: { card: Card }) {
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setAssignOpen(true)} className="gap-2 cursor-pointer rounded-lg">
             <LinkIcon className="h-4 w-4 text-primary/60" /> Assign User
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setEditOpen(true)} className="gap-2 cursor-pointer rounded-lg">
+            <CreditCard className="h-4 w-4 text-primary/60" /> Edit Card
           </DropdownMenuItem>
           {card.user && (
             <DropdownMenuItem onClick={() => patch({ userId: null }).then(() => { toast.success("Card unassigned."); router.refresh(); }).catch((e) => toast.error(e.message))} className="gap-2 cursor-pointer rounded-lg">
@@ -286,6 +308,42 @@ export function CardActions({ card }: { card: Card }) {
             <Button variant="outline" onClick={() => setDeleteOpen(false)} className="flex-1 rounded-xl h-11 border-primary/20 font-bold">Cancel</Button>
             <Button variant="destructive" onClick={handleDelete} disabled={isLoading} className="flex-1 rounded-xl h-11 font-bold">
               {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Deleting...</> : "Delete"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* EDIT CARD DIALOG */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="sm:max-w-[400px] rounded-2xl border-primary/20 shadow-2xl">
+          <div className="h-1 w-full bg-gradient-to-r from-[#0f1c48] to-[#c0392b] -mt-6 -mx-6 mb-4 rounded-t-2xl" />
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Edit Card</DialogTitle>
+            <DialogDescription>Update the card serial number and notes.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">Serial Number (UID)</label>
+              <input
+                value={editForm.cardUid}
+                onChange={(e) => setEditForm(prev => ({ ...prev, cardUid: e.target.value }))}
+                className="w-full h-11 rounded-xl border border-primary/20 bg-background px-4 text-sm font-mono focus:ring-1 ring-primary outline-none"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">Internal Notes</label>
+              <textarea
+                value={editForm.notes}
+                onChange={(e) => setEditForm(prev => ({ ...prev, notes: e.target.value }))}
+                rows={3}
+                className="w-full rounded-xl border border-primary/20 bg-background px-4 py-3 text-sm focus:ring-1 ring-primary outline-none resize-none"
+              />
+            </div>
+          </div>
+          <div className="flex gap-3 pt-4">
+            <Button variant="outline" onClick={() => setEditOpen(false)} className="flex-1 rounded-xl h-11 border-primary/20 font-bold">Cancel</Button>
+            <Button onClick={handleEdit} disabled={isLoading} className="flex-1 rounded-xl h-11 font-bold">
+              {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</> : "Save Changes"}
             </Button>
           </div>
         </DialogContent>

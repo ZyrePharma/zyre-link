@@ -15,7 +15,20 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { isLocked, isDeactivated, userId, profileId, notes } = body;
+    const { cardUid, isLocked, isDeactivated, userId, profileId, notes } = body;
+
+    // Check if new cardUid is already taken
+    if (cardUid) {
+      const existing = await prisma.nfcCard.findFirst({
+        where: {
+          cardUid,
+          NOT: { id }
+        }
+      });
+      if (existing) {
+        return NextResponse.json({ message: "Card serial number already in use." }, { status: 400 });
+      }
+    }
 
     // If assigning to a user, verify user exists and get their profileId
     let resolvedProfileId = profileId;
@@ -37,6 +50,7 @@ export async function PATCH(
     const card = await prisma.nfcCard.update({
       where: { id },
       data: {
+        ...(cardUid !== undefined && { cardUid }),
         ...(isLocked !== undefined && { isLocked }),
         ...(isDeactivated !== undefined && { isDeactivated }),
         ...(notes !== undefined && { notes }),
