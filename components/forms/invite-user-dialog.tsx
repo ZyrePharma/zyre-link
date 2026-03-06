@@ -47,6 +47,7 @@ const inviteSchema = z.object({
   role: z.nativeEnum(UserRole),
   department: z.string().optional(),
   employeeId: z.string().optional(),
+  cardUid: z.string().optional(),
 });
 
 type InviteFormValues = z.infer<typeof inviteSchema>;
@@ -57,6 +58,7 @@ export function InviteUserDialog() {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hrmsUsers, setHrmsUsers] = useState<any[]>([]);
+  const [availableCards, setAvailableCards] = useState<any[]>([]);
   const [isFetchingHrms, setIsFetchingHrms] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -68,6 +70,7 @@ export function InviteUserDialog() {
       role: UserRole.EMPLOYEE,
       department: "",
       employeeId: "",
+      cardUid: "",
     },
   });
 
@@ -92,6 +95,25 @@ export function InviteUserDialog() {
 
     return () => clearTimeout(timer);
   }, [searchTerm, open]);
+
+  // Fetch available cards
+  useEffect(() => {
+    if (!open) return;
+
+    const fetchCards = async () => {
+      try {
+        const response = await fetch("/api/admin/cards/available");
+        if (response.ok) {
+          const data = await response.json();
+          setAvailableCards(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch available cards", error);
+      }
+    };
+
+    fetchCards();
+  }, [open]);
 
   const handleHrmsSelect = (selectedUser: any) => {
     form.setValue("name", selectedUser.name);
@@ -278,6 +300,27 @@ export function InviteUserDialog() {
                   <FormLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Department</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Engineering" className="rounded-xl border-primary/20 bg-background focus-visible:ring-primary h-11" />
+                  </FormControl>
+                  <FormMessage className="text-[10px]" />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="cardUid"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Assign NFC Card (Optional)</FormLabel>
+                  <FormControl>
+                    <select 
+                      {...field}
+                      className="w-full h-11 rounded-xl border border-primary/20 bg-background px-3 text-sm font-medium focus:ring-1 ring-primary outline-none transition-all"
+                    >
+                      <option value="">No card assigned</option>
+                      {availableCards.map((card) => (
+                        <option key={card.id} value={card.cardUid}>{card.cardUid}</option>
+                      ))}
+                    </select>
                   </FormControl>
                   <FormMessage className="text-[10px]" />
                 </FormItem>

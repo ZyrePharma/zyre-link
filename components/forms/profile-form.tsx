@@ -174,9 +174,9 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           <div className="relative">
             {/* Cover Photo */}
             <div 
-              className="h-52 md:h-64 bg-gradient-to-br from-primary via-primary/80 to-secondary/60 relative cursor-pointer group"
+              className="h-52 md:h-64 relative cursor-pointer group"
               onClick={() => coverInputRef.current?.click()}
-              style={form.watch("coverPhotoUrl") ? { backgroundImage: `url(${form.watch("coverPhotoUrl")})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+              style={{ backgroundImage: `url(${form.watch("coverPhotoUrl") || "/zyre-banner.jpg"})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
             >
               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                 {uploadingCover ? (
@@ -305,7 +305,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                     <FormLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">Profile Link</FormLabel>
                     <FormControl>
                       <div className="flex items-center space-x-2 bg-background rounded-lg px-3 border border-border focus-within:ring-1 ring-primary/30">
-                        <span className="text-muted-foreground text-sm py-2">zyre.link/</span>
+                        <span className="text-muted-foreground text-sm py-2">{typeof window !== "undefined" ? window.location.host : ""}/profile/</span>
                         <Input {...field} className="border-none shadow-none focus-visible:ring-0 p-0 h-9" />
                       </div>
                     </FormControl>

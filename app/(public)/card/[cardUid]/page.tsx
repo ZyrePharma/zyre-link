@@ -8,11 +8,22 @@ export default async function CardRedirectPage({ params }: { params: Promise<{ c
     where: { cardUid },
     include: {
       profile: true,
+      user: {
+        select: {
+          isActive: true,
+          inviteToken: true,
+        }
+      }
     },
   });
 
   if (!card) {
     notFound();
+  }
+
+  // If card is linked to a user who hasn't accepted their invite yet
+  if (card.user && !card.user.isActive && card.user.inviteToken) {
+    redirect(`/invite/accept?token=${card.user.inviteToken}`);
   }
 
 

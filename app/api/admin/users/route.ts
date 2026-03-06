@@ -15,10 +15,24 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { email, name, role, department, employeeId } = body;
+    const { email, name, role, department, employeeId, cardUid } = body;
 
     if (!email || !name || !role) {
       return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
+    }
+
+    // Check if card exists and is available if cardUid is provided
+    let card = null;
+    if (cardUid) {
+      card = await prisma.nfcCard.findUnique({
+        where: { cardUid },
+      });
+      if (!card) {
+        return NextResponse.json({ message: "Card not found" }, { status: 400 });
+      }
+      if (card.userId) {
+        return NextResponse.json({ message: "Card already assigned to another user" }, { status: 400 });
+      }
     }
 
     // Check if user already exists
@@ -60,7 +74,24 @@ export async function POST(req: Request) {
           },
         },
       },
+      include: {
+        profile: true,
+      }
     });
+
+    // Link card to user if provided
+    if (cardUid && card) {
+      await prisma.nfcCard.update({
+        where: { id: card.id },
+        data: {
+          userId: newUser.id,
+          profileId: newUser.profile?.id,
+          assignedAt: new Date(),
+          isActivated: true, // Mark as activated for the user
+          activatedAt: new Date(),
+        },
+      });
+    }
 
     // Log admin action
     await prisma.adminLog.create({
@@ -68,13 +99,15 @@ export async function POST(req: Request) {
         userId: session.user.id,
         action: "INVITED_USER",
         targetId: newUser.id,
-        details: { email, role, department },
+        details: { email, role, department, cardUid },
       },
     });
 
     // Send invite email via Nodemailer
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const inviteUrl = `${appUrl}/invite/accept?token=${inviteToken}`;
+    const inviteUrl = cardUid 
+      ? `${appUrl}/card/${cardUid}` 
+      : `${appUrl}/invite/accept?token=${inviteToken}`;
     const inviterName = session.user.name || "Admin";
 
     const transporter = nodemailer.createTransport({
