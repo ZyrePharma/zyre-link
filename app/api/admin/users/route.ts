@@ -108,9 +108,7 @@ export async function POST(req: Request) {
     const host = req.headers.get("host");
     const appUrl = `${protocol}://${host}`;
     
-    const inviteUrl = cardUid 
-      ? `${appUrl}/card/${cardUid}` 
-      : `${appUrl}/invite/accept?token=${inviteToken}`;
+    const inviteUrl = `${appUrl}/invite/accept?token=${inviteToken}`;
     const inviterName = session.user.name || "Admin";
 
     const transporter = nodemailer.createTransport({
