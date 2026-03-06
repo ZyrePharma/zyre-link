@@ -161,21 +161,21 @@ export function InviteUserDialog() {
           Add New User
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] rounded-2xl border-primary/20 shadow-2xl overflow-hidden">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold tracking-tight">Add New User</DialogTitle>
-         
+      <DialogContent className="sm:max-w-[425px] rounded-3xl border-border bg-background shadow-2xl overflow-hidden p-0">
+        <div className="h-1.5 w-full bg-gradient-to-r from-primary/40 via-primary/20 to-transparent" />
+        <DialogHeader className="px-6 pt-6 flex flex-col gap-1">
+          <DialogTitle className="text-2xl font-bold tracking-tight text-foreground">Add New User</DialogTitle>
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pb-4">
-            <div className="pt-2">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-6 pb-6 pt-2">
+            <div>
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel className="text-xs font-bold uppercase tracking-wider text-primary">User Name</FormLabel>
+                    <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70 mb-1">User Name</FormLabel>
                     <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -183,7 +183,7 @@ export function InviteUserDialog() {
                             variant="outline"
                             role="combobox"
                             className={cn(
-                              "w-full justify-between h-11 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all font-bold px-4",
+                              "w-full justify-between h-11 rounded-xl border border-input bg-background hover:bg-muted/50 transition-all font-medium px-4",
                               !field.value && "text-muted-foreground"
                             )}
                           >
@@ -192,7 +192,7 @@ export function InviteUserDialog() {
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-[375px] p-0 rounded-xl border-primary/10 shadow-2xl" align="start">
+                      <PopoverContent className="w-[375px] p-0 rounded-xl border-border shadow-2xl overflow-hidden" align="start">
                         <Command shouldFilter={false}>
                           <CommandInput 
                             placeholder="Type to search or enter new name..." 
@@ -220,16 +220,16 @@ export function InviteUserDialog() {
                                     key={user.emp_id}
                                     value={user.emp_id}
                                     onSelect={() => handleHrmsSelect(user)}
-                                    className="flex flex-col items-start gap-1 py-3 px-4 cursor-pointer hover:bg-primary/5 rounded-lg mx-1"
+                                    className="flex flex-col items-start gap-1 py-3 px-4 cursor-pointer hover:bg-muted/80 rounded-lg mx-1 my-0.5 transition-colors"
                                   >
                                     <div className="flex items-center justify-between w-full">
-                                      <span className="font-bold text-sm">{user.name}</span>
-                                      <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">
+                                      <span className="font-bold text-sm text-foreground">{user.name}</span>
+                                      <span className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-bold">
                                         {user.emp_id}
                                       </span>
                                     </div>
                                     <span className="text-xs text-muted-foreground truncate w-full">{user.email}</span>
-                                    <span className="text-[10px] text-primary/60 uppercase font-bold tracking-widest">{user.department_name}</span>
+                                    <span className="text-[10px] text-muted-foreground/60 uppercase font-bold tracking-widest">{user.department_name}</span>
                                   </CommandItem>
                                 ))}
                               </CommandGroup>
@@ -249,9 +249,9 @@ export function InviteUserDialog() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Email Address</FormLabel>
+                  <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Email Address</FormLabel>
                   <FormControl>
-                    <Input {...field} type="email" placeholder="john@zyre.link" className="rounded-xl border-primary/20 bg-background focus-visible:ring-primary h-11" />
+                    <Input {...field} type="email" placeholder="john@zyre.link" className="rounded-xl border-input bg-background focus-visible:ring-primary h-11" />
                   </FormControl>
                   <FormMessage className="text-[10px]" />
                 </FormItem>
@@ -263,11 +263,11 @@ export function InviteUserDialog() {
                 name="role"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Role</FormLabel>
+                  <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Role</FormLabel>
                     <FormControl>
                       <select 
                         {...field}
-                        className="w-full h-11 rounded-xl border border-primary/20 bg-background px-3 text-sm font-medium focus:ring-1 ring-primary outline-none transition-all"
+                        className="w-full h-11 rounded-xl border border-input bg-background px-3 text-sm font-medium focus:ring-1 ring-primary outline-none transition-all"
                       >
                         {Object.values(UserRole).map((role) => (
                           <option key={role} value={role}>{role}</option>
@@ -283,9 +283,9 @@ export function InviteUserDialog() {
                 name="employeeId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Employee ID</FormLabel>
+                    <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Employee ID</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="ZY-001" className="rounded-xl border-primary/20 bg-background focus-visible:ring-primary h-11" />
+                      <Input {...field} placeholder="ZY-001" className="rounded-xl border-input bg-background focus-visible:ring-primary h-11" />
                     </FormControl>
                     <FormMessage className="text-[10px]" />
                   </FormItem>
@@ -297,9 +297,9 @@ export function InviteUserDialog() {
               name="department"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Department</FormLabel>
+                  <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Department</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Engineering" className="rounded-xl border-primary/20 bg-background focus-visible:ring-primary h-11" />
+                    <Input {...field} placeholder="Engineering" className="rounded-xl border-input bg-background focus-visible:ring-primary h-11" />
                   </FormControl>
                   <FormMessage className="text-[10px]" />
                 </FormItem>
@@ -310,11 +310,11 @@ export function InviteUserDialog() {
               name="cardUid"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Assign NFC Card (Optional)</FormLabel>
+                  <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Assign NFC Card (Optional)</FormLabel>
                   <FormControl>
                     <select 
                       {...field}
-                      className="w-full h-11 rounded-xl border border-primary/20 bg-background px-3 text-sm font-medium focus:ring-1 ring-primary outline-none transition-all"
+                      className="w-full h-11 rounded-xl border border-input bg-background px-3 text-sm font-medium focus:ring-1 ring-primary outline-none transition-all"
                     >
                       <option value="">No card assigned</option>
                       {availableCards.map((card) => (
@@ -329,15 +329,15 @@ export function InviteUserDialog() {
             <div className="flex gap-3 pt-6">
               <Button 
                 type="button" 
-                variant="outline" 
+                variant="ghost" 
                 onClick={() => setOpen(false)}
-                className="flex-1 rounded-xl border-primary/20 hover:bg-primary/5 font-bold h-11"
+                className="flex-1 rounded-xl hover:bg-muted font-bold h-11 transition-all"
               >
                 Cancel
               </Button>
               <Button 
                 type="submit" 
-                className="flex-1 rounded-xl shadow-lg bg-primary text-primary-foreground hover:bg-primary/90 font-bold h-11" 
+                className="flex-1 rounded-xl shadow-lg shadow-primary/20 bg-primary text-primary-foreground hover:bg-primary/90 font-bold h-11 transition-all" 
                 disabled={isLoading}
               >
                 {isLoading ? (

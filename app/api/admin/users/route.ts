@@ -104,7 +104,10 @@ export async function POST(req: Request) {
     });
 
     // Send invite email via Nodemailer
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const protocol = req.headers.get("x-forwarded-proto") || "http";
+    const host = req.headers.get("host");
+    const appUrl = `${protocol}://${host}`;
+    
     const inviteUrl = cardUid 
       ? `${appUrl}/card/${cardUid}` 
       : `${appUrl}/invite/accept?token=${inviteToken}`;
