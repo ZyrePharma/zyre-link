@@ -4,9 +4,10 @@ import { prisma } from "@/lib/prisma";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (session?.user?.role !== "ADMIN") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -14,7 +15,7 @@ export async function PATCH(
 
     const data = await req.json();
     const company = await prisma.company.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name: data.name,
         logoUrl: data.logoUrl,
@@ -31,16 +32,17 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (session?.user?.role !== "ADMIN") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     await prisma.company.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: "Company deleted successfully" });

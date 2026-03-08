@@ -63,18 +63,6 @@ async function main() {
     },
   });
 
-  // Create Company Settings
-  await prisma.companySettings.upsert({
-    where: { id: "default-settings" },
-    update: {},
-    create: {
-      id: "default-settings",
-      companyName: "Zyre Link",
-      primaryColor: "#3B82F6",
-      secondaryColor: "#1E40AF",
-      defaultTheme: "company",
-    },
-  });
 
   console.log({ admin: admin.email, employee: employee.email });
 }
