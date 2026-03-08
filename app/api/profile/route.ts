@@ -25,7 +25,9 @@ export async function POST(req: NextRequest) {
       coverPhotoUrl,
       contactMethods,
       socialLinks,
-      customLinks
+      customLinks,
+      autoDownloadVcf,
+      layout
     } = body;
 
     // Check if username is already taken by another user
@@ -59,6 +61,8 @@ export async function POST(req: NextRequest) {
         extension,
         profilePhotoUrl,
         coverPhotoUrl,
+        autoDownloadVcf,
+        layout,
         contactMethods: {
           create: contactMethods?.map((m: any) => ({
             type: m.type,
@@ -93,6 +97,8 @@ export async function POST(req: NextRequest) {
         extension,
         profilePhotoUrl,
         coverPhotoUrl,
+        autoDownloadVcf,
+        layout,
         contactMethods: {
           deleteMany: {},
           create: contactMethods?.map((m: any) => ({

@@ -29,15 +29,7 @@ export default async function CardRedirectPage({ params }: { params: Promise<{ c
 
   // If card is linked to a profile, redirect to that profile
   if (card.profile) {
-    // Track stats
-    await prisma.profileView.create({
-      data: {
-        profileId: card.profileId!,
-        sourceType: "NFC",
-      },
-    });
-
-    redirect(`/profile/${card.profile.username}`);
+    redirect(`/profile/${card.profile.username}?source=nfc`);
   }
 
   // Fallback

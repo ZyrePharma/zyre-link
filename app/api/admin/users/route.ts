@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { email, name, role, department, employeeId, cardUid } = body;
+    const { email, name, role, department, employeeId, companyId, cardUid } = body;
 
     if (!email || !name || !role) {
       return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
@@ -56,6 +56,7 @@ export async function POST(req: Request) {
         role: role as UserRole,
         department,
         employeeId,
+        companyId: companyId || null,
         isActive: false, // account inactive until invite is accepted
         inviteToken,
         inviteTokenExpiry,

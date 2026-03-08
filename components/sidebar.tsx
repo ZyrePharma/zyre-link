@@ -13,7 +13,10 @@ import {
   Users,
   X,
   Menu,
-  ChevronRight
+  UserRoundPen,
+  CreditCard,
+  Contact,
+  Building2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
@@ -21,13 +24,16 @@ import { useState, useEffect } from "react";
 
 const mainNavItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Edit Profile", href: "/profile/edit", icon: User },
+  { name: "Edit Profile", href: "/profile/edit", icon: UserRoundPen },
+  { name: "Account Settings", href: "/account", icon: Settings },
 ];
 
 const adminNavItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { name: "Employees", href: "/admin/users", icon: Users },
-  { name: "NFC Cards", href: "/admin/cards", icon: Settings },
+  { name: "Users", href: "/admin/users", icon: Users },
+  { name: "Companies", href: "/admin/companies", icon: Building2 },
+  { name: "NFC Cards", href: "/admin/cards", icon: CreditCard },
+  { name: "Account Settings", href: "/account", icon: Settings },
 ];
 
 interface SidebarProps {
@@ -52,6 +58,19 @@ export function Sidebar({ userRole }: SidebarProps) {
     return () => document.removeEventListener("keydown", handleEsc);
   }, []);
 
+  // Listen for custom open event from Navbar
+  useEffect(() => {
+    const handleOpen = () => setMobileOpen(true);
+    if (typeof document !== "undefined") {
+      document.addEventListener("openMobileSidebar", handleOpen);
+    }
+    return () => {
+      if (typeof document !== "undefined") {
+        document.removeEventListener("openMobileSidebar", handleOpen);
+      }
+    };
+  }, []);
+
   const navItems = userRole === "ADMIN" ? adminNavItems : mainNavItems;
 
   const sidebarContent = (
@@ -65,7 +84,9 @@ export function Sidebar({ userRole }: SidebarProps) {
             height={32} 
             className="rounded-md border p-0.5 bg-white shadow-sm"
           />
-          <h1 className="text-xl font-bold text-sidebar-foreground tracking-tight">ZYRE LINK</h1>
+          <h1 className="text-xl font-bold tracking-tight text-primary">
+            ZYRE <span className="text-secondary">LINK</span>
+          </h1>
         </div>
         {/* Close button — mobile only */}
         <Button
@@ -124,16 +145,6 @@ export function Sidebar({ userRole }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile hamburger button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="fixed top-4 left-4 z-50 md:hidden h-10 w-10 bg-card/90 backdrop-blur border border-border shadow-md"
-        onClick={() => setMobileOpen(true)}
-      >
-        <Menu className="h-5 w-5" />
-      </Button>
-
       {/* Mobile overlay */}
       {mobileOpen && (
         <div

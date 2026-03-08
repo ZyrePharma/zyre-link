@@ -3,7 +3,9 @@ import { auth } from "@/auth";
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
-  const isAuthPage = req.nextUrl.pathname.startsWith("/login");
+  const isAuthPage = req.nextUrl.pathname.startsWith("/login") || 
+                     req.nextUrl.pathname.startsWith("/forgot-password") || 
+                     req.nextUrl.pathname.startsWith("/reset-password");
   const isPublicProfile = req.nextUrl.pathname.startsWith("/profile/");
   const isCardRedirect = req.nextUrl.pathname.startsWith("/card/");
   const isInvitePage = req.nextUrl.pathname.startsWith("/invite/");

@@ -30,8 +30,12 @@ model User {
   officeLocation    String?
   inviteToken       String?   @unique
   inviteTokenExpiry DateTime?
+  resetToken        String?   @unique
+  resetTokenExpiry  DateTime?
 
   // Relations
+  companyId String?
+  company   Company?   @relation(fields: [companyId], references: [id])
   accounts  Account[]
   sessions  Session[]
   profile   Profile?
@@ -118,6 +122,7 @@ model Profile {
 
   // Customization
   theme          String @default("company")
+  layout         String @default("classic")
   customColors   Json? // Limited to company brand colors
   layoutSettings Json?
 
@@ -125,6 +130,7 @@ model Profile {
   isActive        Boolean @default(true)
   isPublic        Boolean @default(true) // Public within company
   showInDirectory Boolean @default(true)
+  autoDownloadVcf Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -329,33 +335,6 @@ enum LinkType {
   DOCUMENT
 }
 
-// ============================================
-// COMPANY SETTINGS
-// ============================================
-
-model CompanySettings {
-  id String @id @default(cuid())
-
-  // Branding
-  companyName    String
-  logoUrl        String?
-  primaryColor   String  @default("#3B82F6")
-  secondaryColor String  @default("#1E40AF")
-
-  // Default settings
-  defaultTheme      String  @default("company")
-  allowCustomThemes Boolean @default(false)
-
-  // Features
-  enableDirectory Boolean @default(true)
-  enableAnalytics Boolean @default(true)
-  requireApproval Boolean @default(false) // Require admin approval for new profiles
-
-  updatedAt DateTime @updatedAt
-
-  @@map("company_settings")
-}
-
 model Department {
   id          String  @id @default(cuid())
   name        String  @unique
@@ -367,6 +346,19 @@ model Department {
   updatedAt DateTime @updatedAt
 
   @@map("departments")
+}
+
+model Company {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  logoUrl         String?
+  cardTemplateUrl String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  users User[]
+
+  @@map("companies")
 }
 
 // ============================================

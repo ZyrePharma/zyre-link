@@ -2,6 +2,9 @@ import { prisma } from "@/lib/prisma";
 import { RegisterCardDialog } from "@/components/admin/register-card-dialog";
 import { DataTable } from "@/components/ui/data-table";
 import { cardColumns } from "@/components/admin/cards-columns";
+import { Download, IdCard } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default async function NfcCardsPage() {
   const cards = await prisma.nfcCard.findMany({
@@ -28,7 +31,17 @@ export default async function NfcCardsPage() {
         <div className="flex flex-col gap-1 md:gap-2">
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">NFC Card Management</h1>
         </div>
+      <div className="flex gap-2">
+        <Link href="/admin/cards/design">
+          <Button
+            className="flex items-center gap-2 bg-secondary hover:bg-secondary/90 text-white rounded-xl shadow-lg"
+          >
+            <IdCard className="h-4 w-4" />
+            Card Designs
+          </Button>
+        </Link>
         <RegisterCardDialog />
+      </div>
       </div>
 
       <DataTable

@@ -4,10 +4,11 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { 
   Bell, 
-  MessageSquare, 
+  UserRoundPen, 
   Globe,
   Settings,
-  LogOut
+  LogOut,
+  Menu
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
@@ -25,14 +26,16 @@ interface NavbarProps {
   userName?: string | null;
   userImage?: string | null;
   userRole?: string | null;
+  username?: string | null;
 }
 
-export function Navbar({ userName, userImage, userRole }: NavbarProps) {
+export function Navbar({ userName, userImage, userRole, username }: NavbarProps) {
   const pathname = usePathname();
 
   const getPageTitle = (path: string) => {
     if (path === "/dashboard") return "Dashboard Overview";
     if (path === "/profile/edit") return "Profile Settings";
+    if (path === "/account") return "Account Settings";
     if (path.startsWith("/admin/users")) return "User Management";
     if (path.startsWith("/admin/cards")) return "Card Management";
     if (path === "/admin") return "Admin Console";
@@ -42,8 +45,20 @@ export function Navbar({ userName, userImage, userRole }: NavbarProps) {
   return (
     <header className="sticky top-0 z-30 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-14 md:h-16 items-center px-4 md:px-8">
-        {/* Spacer for mobile hamburger button */}
-        <div className="w-10 md:hidden" />
+        {/* Mobile hamburger button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden mr-3 h-9 w-9 border border-border/50 bg-background/50 shadow-sm"
+          onClick={() => {
+            if (typeof document !== "undefined") {
+              const event = new Event("openMobileSidebar");
+              document.dispatchEvent(event);
+            }
+          }}
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
 
         {/* Page Header Title */}
         <div className="flex-1">
@@ -76,14 +91,22 @@ export function Navbar({ userName, userImage, userRole }: NavbarProps) {
               <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer" asChild>
                 <Link href={userRole === "ADMIN" ? "/admin" : "/profile/edit"}>
+                  <UserRoundPen className="mr-2 h-4 w-4" />
+                  <span>Edit Profile</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer" asChild>
+                <Link href="/account">
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Account Settings</span>
                 </Link>
               </DropdownMenuItem>
-              {userRole !== "ADMIN" && (
-                <DropdownMenuItem className="cursor-pointer">
-                  <Globe className="mr-2 h-4 w-4" />
-                  <span>View Public Profile</span>
+              {userRole !== "ADMIN" && username && (
+                <DropdownMenuItem className="cursor-pointer" asChild>
+                  <Link href={`/profile/${username}`}>
+                    <Globe className="mr-2 h-4 w-4" />
+                    <span>View Public Profile</span>
+                  </Link>
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />

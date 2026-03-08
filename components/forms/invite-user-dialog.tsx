@@ -47,6 +47,7 @@ const inviteSchema = z.object({
   role: z.nativeEnum(UserRole),
   department: z.string().optional(),
   employeeId: z.string().optional(),
+  companyId: z.string().optional(),
   cardUid: z.string().optional(),
 });
 
@@ -59,6 +60,7 @@ export function InviteUserDialog() {
   const [isLoading, setIsLoading] = useState(false);
   const [hrmsUsers, setHrmsUsers] = useState<any[]>([]);
   const [availableCards, setAvailableCards] = useState<any[]>([]);
+  const [companies, setCompanies] = useState<any[]>([]);
   const [isFetchingHrms, setIsFetchingHrms] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -70,6 +72,7 @@ export function InviteUserDialog() {
       role: UserRole.EMPLOYEE,
       department: "",
       employeeId: "",
+      companyId: "",
       cardUid: "",
     },
   });
@@ -113,6 +116,20 @@ export function InviteUserDialog() {
     };
 
     fetchCards();
+
+    // Fetch companies
+    const fetchCompanies = async () => {
+      try {
+        const response = await fetch("/api/admin/companies");
+        if (response.ok) {
+          const data = await response.json();
+          setCompanies(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch companies", error);
+      }
+    };
+    fetchCompanies();
   }, [open]);
 
   const handleHrmsSelect = (selectedUser: any) => {
@@ -300,6 +317,27 @@ export function InviteUserDialog() {
                   <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Department</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Engineering" className="rounded-xl border-input bg-background focus-visible:ring-primary h-11" />
+                  </FormControl>
+                  <FormMessage className="text-[10px]" />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="companyId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Company</FormLabel>
+                  <FormControl>
+                    <select 
+                      {...field}
+                      className="w-full h-11 rounded-xl border border-input bg-background px-3 text-sm font-medium focus:ring-1 ring-primary outline-none transition-all"
+                    >
+                      <option value="">No company assigned</option>
+                      {companies.map((company) => (
+                        <option key={company.id} value={company.id}>{company.name}</option>
+                      ))}
+                    </select>
                   </FormControl>
                   <FormMessage className="text-[10px]" />
                 </FormItem>

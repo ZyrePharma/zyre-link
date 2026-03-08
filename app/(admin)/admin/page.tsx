@@ -1,11 +1,42 @@
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, CreditCard, Activity, TrendingUp } from "lucide-react";
+import { ActivityChart } from "@/components/admin/activity-chart";
+import { SystemHealth } from "@/components/admin/system-health";
 
 export default async function AdminDashboardPage() {
   const userCount = await prisma.user.count();
   const profileCount = await prisma.profile.count();
   const cardCount = await prisma.nfcCard.count();
+
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
+
+  const activityData = await Promise.all(
+    last7Days.map(async (date) => {
+      const nextDate = new Date(date);
+      nextDate.setDate(date.getDate() + 1);
+
+      const [views, clicks] = await Promise.all([
+        prisma.profileView.count({
+          where: { viewedAt: { gte: date, lt: nextDate } },
+        }),
+        prisma.linkClick.count({
+          where: { clickedAt: { gte: date, lt: nextDate } },
+        }),
+      ]);
+
+      return {
+        date: date.toLocaleDateString("en-US", { weekday: "short" }),
+        views,
+        clicks,
+      };
+    })
+  );
 
   const stats = [
     { label: "Total Employees", value: userCount, icon: Users, color: "text-primary", accent: "bg-primary/10" },
@@ -17,8 +48,7 @@ export default async function AdminDashboardPage() {
   return (
     <div className="p-4 md:p-8 space-y-6 md:space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Admin Console</h1>
-        <p className="text-sm md:text-base text-muted-foreground">Monitor system activity and manage resources.</p>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Admin Dashboard</h1>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
@@ -49,9 +79,7 @@ export default async function AdminDashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[200px] md:h-[300px] flex items-center justify-center text-muted-foreground italic text-sm">
-              Activity chart coming soon...
-            </div>
+            <ActivityChart data={activityData} />
           </CardContent>
         </Card>
         <Card className="lg:col-span-3 border-primary/10">
@@ -62,9 +90,7 @@ export default async function AdminDashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-             <div className="h-[200px] md:h-[300px] flex items-center justify-center text-muted-foreground italic text-sm">
-              Health metrics coming soon...
-            </div>
+            <SystemHealth />
           </CardContent>
         </Card>
       </div>

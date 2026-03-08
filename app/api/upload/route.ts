@@ -34,12 +34,19 @@ export async function POST(request: Request) {
     const base64 = `data:${file.type};base64,${buffer.toString("base64")}`;
 
     // Upload to Cloudinary
+    let transformations: any[] = [];
+    if (folder === "template") {
+      transformations = [{ quality: "auto", fetch_format: "auto" }];
+    } else if (folder.includes("cover")) {
+      transformations = [{ width: 1200, height: 400, crop: "fill", quality: "auto" }];
+    } else {
+      transformations = [{ width: 400, height: 400, crop: "fill", quality: "auto", gravity: "face" }];
+    }
+
     const result = await cloudinary.uploader.upload(base64, {
-      folder,
+      folder: folder === "template" ? "zyre_link_templates" : folder,
       resource_type: "image",
-      transformation: folder.includes("cover")
-        ? [{ width: 1200, height: 400, crop: "fill", quality: "auto" }]
-        : [{ width: 400, height: 400, crop: "fill", quality: "auto", gravity: "face" }],
+      transformation: transformations,
     });
 
     return NextResponse.json({

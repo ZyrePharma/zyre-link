@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -31,7 +31,12 @@ import {
   Loader2,
   CreditCard,
   StickyNote,
+  Download,
 } from "lucide-react";
+import { toPng } from "html-to-image";
+import { CardDesignRenderer } from "@/components/admin/card-design-renderer";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 type Card = {
   id: string;
@@ -56,6 +61,10 @@ export function CardActions({ card }: { card: Card }) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const frontRef = useRef<HTMLDivElement>(null);
+  const backRef = useRef<HTMLDivElement>(null);
 
   const [users, setUsers] = useState<SystemUser[]>([]);
   const [selectedUserId, setSelectedUserId] = useState("");
@@ -153,6 +162,50 @@ export function CardActions({ card }: { card: Card }) {
     }
   };
 
+  const handleDownloadDesign = async () => {
+    if (!frontRef.current || !backRef.current) return;
+    setIsDownloading(true);
+    
+    // Using a toast to let user know it's working since it may take ~1s to load image/font
+    const toastId = toast.loading("Generating high-quality designs for printing...");
+    
+    try {
+      // First fetch settings to grab the template URL if not passed down. 
+      // Doing it here prevents over-fetching on the table load for all rows
+      const res = await fetch("/api/admin/settings");
+      if (!res.ok) throw new Error("Could not load template settings");
+      const settings = await res.json();
+      
+      // Give DOM time to update with settings/QR code if needed
+      await new Promise(r => setTimeout(r, 800)); 
+      
+      const [frontDataUrl, backDataUrl] = await Promise.all([
+        toPng(frontRef.current, { cacheBust: true }),
+        toPng(backRef.current, { cacheBust: true })
+      ]);
+      
+      const zip = new JSZip();
+      const fileName = `card-${card.cardUid}`;
+      
+      // Convert DataURLs to Blobs/ArrayBuffers for JSZip
+      const frontBlob = await (await fetch(frontDataUrl)).blob();
+      const backBlob = await (await fetch(backDataUrl)).blob();
+      
+      zip.file(`${fileName}-front.png`, frontBlob);
+      zip.file(`${fileName}-back.png`, backBlob);
+      
+      const content = await zip.generateAsync({ type: "blob" });
+      saveAs(content, `${fileName}.zip`);
+      
+      toast.success("Designs downloaded successfully", { id: toastId });
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate designs. Ensure a template is set in settings.", { id: toastId });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <>
       <DropdownMenu>
@@ -172,6 +225,10 @@ export function CardActions({ card }: { card: Card }) {
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setEditOpen(true)} className="gap-2 cursor-pointer rounded-lg">
             <CreditCard className="h-4 w-4 text-primary/60" /> Edit Card
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleDownloadDesign} disabled={isDownloading} className="gap-2 cursor-pointer rounded-lg">
+            {isDownloading ? <Loader2 className="h-4 w-4 text-primary/60 animate-spin" /> : <Download className="h-4 w-4 text-primary/60" />} 
+            Download Design PNG
           </DropdownMenuItem>
           {card.user && (
             <DropdownMenuItem onClick={() => patch({ userId: null }).then(() => { toast.success("Card unassigned."); router.refresh(); }).catch((e) => toast.error(e.message))} className="gap-2 cursor-pointer rounded-lg">
@@ -196,6 +253,18 @@ export function CardActions({ card }: { card: Card }) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* HIDDEN DESIGN RENDERER FOR PNG EXPORT */}
+      <div className="absolute -left-[9999px] top-0 opacity-0 pointer-events-none overflow-hidden">
+        <CardDesignRenderer
+          frontRef={frontRef}
+          backRef={backRef}
+          cardUid={card.cardUid}
+          user={card.user}
+          profile={card.profile}
+          templateUrl={null} // Default null; fetched during generation to reduce load. (Could be improved)
+        />
+      </div>
 
       {/* VIEW DIALOG */}
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>

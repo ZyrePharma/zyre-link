@@ -31,9 +31,7 @@ export default async function EditProfilePage() {
     <div className="p-8 max-w-5xl mx-auto space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Profile Settings</h1>
-        <p className="text-muted-foreground mt-2">
-          Manage your digital business card and company directory information.
-        </p>
+        
       </div>
 
       <ProfileForm initialData={user.profile} />
