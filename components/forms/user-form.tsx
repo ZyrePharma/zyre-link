@@ -53,7 +53,7 @@ const inviteSchema = z.object({
 
 type InviteFormValues = z.infer<typeof inviteSchema>;
 
-export function InviteUserDialog() {
+export function UserForm() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -158,7 +158,7 @@ export function InviteUserDialog() {
         throw new Error(data.message || "Failed to invite user");
       }
 
-      toast.success("Employee invited successfully!");
+      toast.success("Employee created successfully!");
       setOpen(false);
       form.reset();
       setSearchTerm("");
@@ -381,10 +381,10 @@ export function InviteUserDialog() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Inviting...
+                    Creating...
                   </>
                 ) : (
-                  "Send Invite"
+                  "Create User"
                 )}
               </Button>
             </div>

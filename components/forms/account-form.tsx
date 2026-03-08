@@ -4,8 +4,10 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 import { 
   Form, 
   FormControl, 
@@ -54,6 +56,8 @@ interface AccountFormProps {
 
 export function AccountForm({ initialEmail }: AccountFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const forcePasswordChange = searchParams.get("forcePasswordChange") === "true";
   const [isLoading, setIsLoading] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -111,7 +115,16 @@ export function AccountForm({ initialEmail }: AccountFormProps) {
           Update your email address or change your password. 
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-6">
+        {forcePasswordChange && (
+          <Alert variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20 animate-in fade-in slide-in-from-top-4 duration-500">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle className="font-bold">Password Change Required</AlertTitle>
+            <AlertDescription>
+              For security reasons, you must change your password before you can continue using the platform.
+            </AlertDescription>
+          </Alert>
+        )}
         <Form {...form}>
           <form 
             onSubmit={form.handleSubmit(

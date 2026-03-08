@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { PasswordResetGuard } from "@/components/auth/password-reset-guard";
 
 
 const geistSans = Geist({
@@ -40,7 +41,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            {children}
+            <PasswordResetGuard>
+              {children}
+            </PasswordResetGuard>
             <Toaster position="top-right" />
           </AuthProvider>
         </ThemeProvider>

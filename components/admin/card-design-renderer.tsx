@@ -2,6 +2,7 @@
 
 import { forwardRef, useEffect, useState } from "react";
 import QRCode from "qrcode";
+import { cn } from "@/lib/utils";
 
 interface CardSideProps {
   cardUid: string;
@@ -79,8 +80,9 @@ export const CardBack = forwardRef<HTMLDivElement, CardSideProps>(
                   <img src={qrDataUrl} alt="QR Code" style={{ width: "100%", height: "100%" }} />
                 </div>
              )}
-             <div style={{ marginTop: "16px", fontSize: "36px", fontWeight: 600, letterSpacing: "10px", color: "#1a1a1a", marginLeft: "15px" }}>
-               ZYRE LINK
+             <div style={{ marginTop: "16px", fontSize: "28px", fontWeight: 600, letterSpacing: "10px", marginLeft: "15px" }}>
+               <span style={{ color: "var(--primary)" }}>ZYRE</span>{" "}
+               <span style={{ color: "var(--secondary)" }}>LINK</span>
              </div>
           </div>
         </div>
@@ -95,9 +97,42 @@ CardBack.displayName = "CardBack";
 interface CardDesignProps extends CardSideProps {
   frontRef?: React.Ref<HTMLDivElement>;
   backRef?: React.Ref<HTMLDivElement>;
+  mode?: "preview" | "export";
+  isFlipped?: boolean;
 }
 
-export const CardDesignRenderer = ({ cardUid, user, profile, templateUrl, logoUrl, frontRef, backRef }: CardDesignProps) => {
+export const CardDesignRenderer = ({ 
+  cardUid, 
+  user, 
+  profile, 
+  templateUrl, 
+  logoUrl, 
+  frontRef, 
+  backRef,
+  mode = "export",
+  isFlipped = false
+}: CardDesignProps) => {
+  if (mode === "preview") {
+    return (
+      <div className="relative w-[1280px] h-[800px] perspective-1000">
+        <div className={cn(
+          "relative w-full h-full transition-transform duration-700 preserve-3d",
+          isFlipped ? "rotate-y-180" : ""
+        )}>
+          {/* Front Side */}
+          <div className="absolute inset-0 backface-hidden">
+            <CardFront ref={frontRef} templateUrl={templateUrl} logoUrl={logoUrl} cardUid={cardUid} user={user} profile={profile} />
+          </div>
+          
+          {/* Back Side */}
+          <div className="absolute inset-0 backface-hidden rotate-y-180">
+            <CardBack ref={backRef} cardUid={cardUid} user={user} profile={profile} templateUrl={templateUrl} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div 
       className="relative overflow-hidden bg-transparent flex"

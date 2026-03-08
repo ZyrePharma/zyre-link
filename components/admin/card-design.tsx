@@ -7,6 +7,7 @@ import { Download, Loader2, Image as ImageIcon, Repeat, LayoutTemplate, Upload }
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CardDesignRenderer } from "@/components/admin/card-design-renderer";
+import { CardTemplateForm } from "@/components/forms/card-template-form";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import {
@@ -48,13 +49,10 @@ export default function CardDesign({
   const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
   const [currentTemplateUrl, setCurrentTemplateUrl] = useState<string | null>(templateUrl);
-  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
-  const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   
   const frontRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const backRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const toggleFlip = (id: string, e?: React.MouseEvent) => {
      if (e) e.stopPropagation();
@@ -70,56 +68,6 @@ export default function CardDesign({
     });
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploadingFile(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("folder", "template");
-
-    try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "Upload failed");
-      }
-
-      const data = await res.json();
-      setCurrentTemplateUrl(data.url);
-      toast.success("Template uploaded successfully! Click Save to apply.");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to upload image.");
-    } finally {
-      setIsUploadingFile(false);
-      // Reset input value so the same file can be picked again if needed
-      if (e.target) e.target.value = "";
-    }
-  };
-
-  const handleSaveTemplate = async () => {
-    setIsSavingTemplate(true);
-    try {
-      const res = await fetch("/api/admin/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cardTemplateUrl: currentTemplateUrl }),
-      });
-      
-      if (!res.ok) throw new Error("Failed to save template");
-      toast.success("Template saved successfully");
-      setSettingsOpen(false);
-    } catch (error) {
-      toast.error("Failed to save template");
-    } finally {
-      setIsSavingTemplate(false);
-    }
-  };
 
   const handleDownload = async (user: DirectoryUser, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -247,7 +195,7 @@ export default function CardDesign({
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Employee Directory ({users.length})</h2>
+        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">User Cards ({users.length})</h2>
         
         <div className="flex gap-2">
           {selectedUsers.size > 0 && (
@@ -269,7 +217,7 @@ export default function CardDesign({
 
           <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2 rounded-xl">
+              <Button size="sm" className="gap-2 bg-primary text-white hover:bg-primary/90 rounded-xl shadow-sm">
                 <LayoutTemplate className="h-4 w-4" />
                 Set Template
               </Button>
@@ -282,70 +230,14 @@ export default function CardDesign({
                 </DialogDescription>
               </DialogHeader>
               
-              <div className="space-y-6 py-4">
-                 {/* Preview */}
-                 <div className="space-y-2">
-                    <Label>Current Template Preview</Label>
-                    {currentTemplateUrl ? (
-                      <div className="relative w-full aspect-[1.6] rounded-xl overflow-hidden bg-muted">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img 
-                          src={currentTemplateUrl} 
-                          alt="Template Preview"  
-                          className="object-fill w-full h-full"
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-full aspect-[1.6] rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 text-muted-foreground bg-muted/30">
-                        <ImageIcon className="h-8 w-8 opacity-50" />
-                        <span className="text-sm text-center">No template uploaded.<br/>Logo and QR will show on white.</span>
-                      </div>
-                    )}
-                 </div>
-
-                 {/* Upload */}
-                 <div className="flex flex-col gap-3">
-                    <input 
-                      type="file" 
-                      ref={fileInputRef} 
-                      className="hidden" 
-                      accept="image/*"
-                      onChange={handleFileChange}
-                    />
-                    <Button 
-                      type="button" 
-                      variant="secondary" 
-                      onClick={() => fileInputRef.current?.click()} 
-                      disabled={isUploadingFile}
-                      className="gap-2 w-full rounded-xl h-11"
-                    >
-                      {isUploadingFile ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Upload className="h-4 w-4" />
-                      )}
-                      {currentTemplateUrl ? "Change Image" : "Upload Image"}
-                    </Button>
-                    
-                    <div className="space-y-2">
-                      <Label>Or Image URL</Label>
-                      <Input 
-                         value={currentTemplateUrl || ""}
-                         onChange={(e) => setCurrentTemplateUrl(e.target.value)}
-                         placeholder="https://..."
-                         className="rounded-xl"
-                      />
-                    </div>
-                 </div>
-              </div>
-
-              <div className="flex gap-3">
-                <Button variant="outline" className="flex-1 rounded-xl h-11" onClick={() => setSettingsOpen(false)}>Cancel</Button>
-                <Button className="flex-1 rounded-xl h-11 font-bold" onClick={handleSaveTemplate} disabled={isSavingTemplate}>
-                   {isSavingTemplate ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Upload className="h-4 w-4 mr-2" />}
-                   Save Design
-                </Button>
-              </div>
+              <CardTemplateForm 
+                initialTemplateUrl={currentTemplateUrl}
+                onSave={(url) => {
+                  setCurrentTemplateUrl(url);
+                  setSettingsOpen(false);
+                }}
+                onCancel={() => setSettingsOpen(false)}
+              />
             </DialogContent>
           </Dialog>
         </div>
@@ -403,16 +295,16 @@ export default function CardDesign({
                    </div>
 
                    <div 
-                      className="absolute top-0 left-0 h-full transition-transform duration-500 will-change-transform ease-in-out"
+                      className="absolute top-0 left-0 h-full"
                       style={{ 
-                         width: "2620px",
-                         transform: `scale(${scale}) translateX(${isFlipped ? '-1340px' : '0px'})`,
+                         width: "1280px",
+                         transform: `scale(${scale})`,
                          transformOrigin: "top left" 
                       }}
                    >
                        <div
-                         style={{ width: "2620px", height: "800px" }}
-                         className="w-[2620px] h-[800px]"
+                         style={{ width: "1280px", height: "800px" }}
+                         className="w-[1280px] h-[800px]"
                        >
                          <CardDesignRenderer
                            frontRef={(el) => { frontRefs.current[user.id] = el; }}
@@ -422,6 +314,8 @@ export default function CardDesign({
                            profile={user.profile}
                            templateUrl={user.company?.cardTemplateUrl || currentTemplateUrl}
                            logoUrl={user.company?.logoUrl || "/zyre_logo_with_text.png"}
+                            mode="preview"
+                            isFlipped={isFlipped}
                          />
                        </div>
                    </div>

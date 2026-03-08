@@ -1,10 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { InviteUserDialog } from "@/components/forms/invite-user-dialog";
+import { UserForm } from "@/components/forms/user-form";
 import { DataTable } from "@/components/ui/data-table";
 import { userColumns } from "@/components/admin/users-columns";
 
 export default async function EmployeeManagementPage() {
   const users = await prisma.user.findMany({
+    where: { role: "EMPLOYEE" },
     include: { profile: true },
     orderBy: { createdAt: "desc" },
   });
@@ -26,9 +27,9 @@ export default async function EmployeeManagementPage() {
     <div className="p-4 md:p-8 space-y-4 md:space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex flex-col gap-1 md:gap-2">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Employee Management</h1>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">User Management</h1>
         </div>
-        <InviteUserDialog />
+        <UserForm />
       </div>
 
       <DataTable

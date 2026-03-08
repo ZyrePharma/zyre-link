@@ -15,6 +15,7 @@ declare module "next-auth" {
       email: string;
       name: string;
       image?: string;
+      mustChangePassword: boolean;
     };
   }
 }
@@ -80,6 +81,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           email: user.email,
           name: user.name,
           role: user.role,
+          mustChangePassword: user.mustChangePassword,
         };
       },
     }),
@@ -101,6 +103,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token && session.user) {
         session.user.id = token.sub as string;
         session.user.role = token.role as string;
+        session.user.mustChangePassword = token.mustChangePassword as boolean;
       }
       return session;
     },
@@ -108,6 +111,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.id = user.id;
         token.role = (user as any).role;
+        token.mustChangePassword = (user as any).mustChangePassword;
       }
       return token;
     },

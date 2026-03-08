@@ -81,6 +81,7 @@ export async function PATCH(req: Request) {
       // Hash the new password and add to update data
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       updateData.password = hashedPassword;
+      updateData.mustChangePassword = false;
     }
 
     // Only update if there are changes

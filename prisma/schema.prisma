@@ -27,6 +27,7 @@ model User {
   department        String?
   employeeId        String?   @unique
   isActive          Boolean   @default(true)
+  mustChangePassword Boolean   @default(false)
   officeLocation    String?
   inviteToken       String?   @unique
   inviteTokenExpiry DateTime?
