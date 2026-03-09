@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -41,6 +41,7 @@ type User = {
   role: UserRole;
   department: string | null;
   employeeId: string | null;
+  companyId: string | null;
   isActive: boolean;
   createdAt: Date;
   profile?: { username: string | null; jobTitle: string | null } | null;
@@ -52,6 +53,7 @@ export function UserActions({ user }: { user: User }) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [companies, setCompanies] = useState<any[]>([]);
 
   // Edit form state
   const [editForm, setEditForm] = useState({
@@ -59,8 +61,33 @@ export function UserActions({ user }: { user: User }) {
     role: user.role,
     department: user.department || "",
     employeeId: user.employeeId || "",
+    companyId: user.companyId || "",
     isActive: user.isActive,
   });
+
+  // Sync edit form with user changes
+  useEffect(() => {
+    setEditForm({
+      name: user.name || "",
+      role: user.role,
+      department: user.department || "",
+      employeeId: user.employeeId || "",
+      companyId: user.companyId || "",
+      isActive: user.isActive,
+    });
+  }, [user]);
+
+  const fetchCompanies = async () => {
+    try {
+      const response = await fetch("/api/admin/companies");
+      if (response.ok) {
+        const data = await response.json();
+        setCompanies(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch companies", error);
+    }
+  };
 
   const handleEdit = async () => {
     setIsLoading(true);
@@ -174,6 +201,7 @@ export function UserActions({ user }: { user: User }) {
                 { label: "Status", value: <Badge variant={user.isActive ? "success" : "secondary" as any} className="rounded-full text-xs font-bold">{user.isActive ? "ACTIVE" : "INACTIVE"}</Badge> },
                 { label: "Department", value: user.department || "—" },
                 { label: "Employee ID", value: user.employeeId || "—" },
+                { label: "Company", value: companies.find(c => c.id === user.companyId)?.name || "—" },
                 { label: "Username", value: user.profile?.username ? `@${user.profile.username}` : "—" },
                 { label: "Job Title", value: user.profile?.jobTitle || "—" },
               ].map(({ label, value }) => (
@@ -224,6 +252,20 @@ export function UserActions({ user }: { user: User }) {
               >
                 {Object.values(UserRole).map((r) => (
                   <option key={r} value={r}>{r}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Company</label>
+              <select
+                value={editForm.companyId}
+                onChange={(e) => setEditForm((prev) => ({ ...prev, companyId: e.target.value }))}
+                className="w-full h-11 rounded-xl border border-primary/20 bg-background px-3 text-sm font-medium focus:ring-1 ring-primary outline-none"
+                onFocus={fetchCompanies}
+              >
+                <option value="">No company assigned</option>
+                {companies.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
             </div>

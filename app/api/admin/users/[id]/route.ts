@@ -36,7 +36,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
 
     const body = await req.json();
-    const { name, role, department, employeeId, isActive } = body;
+    const { name, role, department, employeeId, companyId, isActive } = body;
 
     const user = await prisma.user.update({
       where: { id },
@@ -45,6 +45,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         ...(role !== undefined && { role: role as UserRole }),
         ...(department !== undefined && { department }),
         ...(employeeId !== undefined && { employeeId }),
+        ...(companyId !== undefined && { companyId: companyId || null }),
         ...(isActive !== undefined && { isActive }),
       },
     });

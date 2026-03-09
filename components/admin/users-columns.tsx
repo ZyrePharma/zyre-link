@@ -13,6 +13,7 @@ export type UserRow = {
   role: UserRole;
   department: string | null;
   employeeId: string | null;
+  companyId: string | null;
   isActive: boolean;
   inviteToken: string | null;
   createdAt: Date;

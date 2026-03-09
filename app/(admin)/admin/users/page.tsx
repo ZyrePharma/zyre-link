@@ -17,6 +17,7 @@ export default async function EmployeeManagementPage() {
     role: u.role,
     department: u.department,
     employeeId: u.employeeId,
+    companyId: u.companyId,
     isActive: u.isActive,
     inviteToken: u.inviteToken,
     createdAt: u.createdAt,
