@@ -90,11 +90,11 @@ export const CardBack = forwardRef<HTMLDivElement, CardSideProps>(
           {/* User Name */}
           <div style={{ flex: 1, paddingRight: "50px" }}>
              {user?.name ? (
-                <h2 style={{ fontSize: "60px", fontWeight: 700, color: "#1a1a1a", margin: 0, lineHeight: 1.2 }}>
+                <h2 style={{ fontSize: "48px", fontWeight: 700, color: "#1a1a1a", margin: 0, lineHeight: 1.2 }}>
                    {user.name}
                 </h2>
              ) : (
-                <span style={{ fontSize: "52px", fontStyle: "italic", color: "#666" }}>Unassigned</span>
+                <span style={{ fontSize: "48px", fontStyle: "italic", color: "#666" }}>Unassigned</span>
              )}
           </div>
 
