@@ -135,7 +135,7 @@ export function ClassicLayout({ profile, allLinks, getIcon, getUrl }: any) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[13px] font-bold text-gray-700 truncate capitalize tracking-tight">
-                    {item.title || item.label || item.type.toLowerCase().replace('_', ' ')}
+                    {item.title || item.label || item.platform || item.type?.toLowerCase().replace('_', ' ') || 'Link'}
                   </p>
                 </div>
                 <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" />
