@@ -19,6 +19,7 @@ export default async function PublicProfilePage({
   const { username } = await params;
   const resolvedSearchParams = await searchParams;
   const sourceParam = resolvedSearchParams?.source as string | undefined;
+  const skipTrack = resolvedSearchParams?.skip_track === "true";
   
   const session = await auth();
   
@@ -47,12 +48,17 @@ export default async function PublicProfilePage({
     notFound();
   }
 
-  // Only track view if it's from QR, NFC, or Link
-  if (sourceParam === "qr" || sourceParam === "link" || sourceParam === "nfc") {
+  // Tracking logic
+  if (!skipTrack) {
+    // If source is provided, use it. Otherwise, default to LINK.
+    const sourceType = (sourceParam === "qr" || sourceParam === "nfc") 
+      ? sourceParam.toUpperCase() as "QR" | "NFC"
+      : "LINK";
+
     await prisma.profileView.create({
       data: {
         profileId: profile.id,
-        sourceType: sourceParam.toUpperCase() as any, // QR, LINK, NFC
+        sourceType,
       },
     });
   }
