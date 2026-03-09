@@ -75,10 +75,12 @@ export function ModernLayout({ profile, allLinks, getIcon, getUrl }: any) {
         </div>
 
         <div className="w-full mt-10 space-y-3">
-          <Button className="w-full bg-gray-900 hover:bg-black text-white rounded-2xl h-14 font-bold text-base shadow-xl transition-all active:scale-[0.98]">
-            <Download className="h-5 w-5 mr-2" />
-            Save Contact
-          </Button>
+          <a href={`/api/vcard/${profile.username}`}>
+            <Button className="w-full bg-gray-900 hover:bg-black text-white rounded-2xl h-14 font-bold text-base shadow-xl transition-all active:scale-[0.98]">
+              <Download className="h-5 w-5 mr-2" />
+              Save Contact
+            </Button>
+          </a>
         </div>
 
         <div className="w-full mt-12 mb-8">

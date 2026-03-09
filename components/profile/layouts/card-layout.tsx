@@ -59,16 +59,17 @@ export function CardLayout({ profile, allLinks, getIcon, getUrl }: any) {
         </div>
       </div>
 
-      {/* Save Contact Card */}
-      <div className="bg-primary rounded-3xl p-6 shadow-lg flex items-center justify-between group cursor-pointer hover:bg-primary/95 transition-all active:scale-[0.98]">
-        <div className="flex flex-col">
-            <h3 className="text-primary-foreground font-black text-lg">Save Contact</h3>
-            <p className="text-primary-foreground/70 text-[10px] font-bold uppercase tracking-wider">Fast & Easy</p>
+      <a href={`/api/vcard/${profile.username}`} className="block">
+        <div className="bg-primary rounded-3xl p-6 shadow-lg flex items-center justify-between group cursor-pointer hover:bg-primary/95 transition-all active:scale-[0.98]">
+          <div className="flex flex-col">
+              <h3 className="text-primary-foreground font-black text-lg">Save Contact</h3>
+              <p className="text-primary-foreground/70 text-[10px] font-bold uppercase tracking-wider">Fast & Easy</p>
+          </div>
+          <div className="h-12 w-12 bg-white/20 rounded-2xl flex items-center justify-center text-white">
+              <Download className="h-6 w-6" />
+          </div>
         </div>
-        <div className="h-12 w-12 bg-white/20 rounded-2xl flex items-center justify-center text-white">
-            <Download className="h-6 w-6" />
-        </div>
-      </div>
+      </a>
 
       {/* Links Grid */}
       <div className="grid grid-cols-2 gap-4 mb-4">

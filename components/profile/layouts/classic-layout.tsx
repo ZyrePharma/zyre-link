@@ -21,7 +21,7 @@ export function ClassicLayout({ profile, allLinks, getIcon, getUrl }: any) {
 
       {/* Cover Section */}
       <div className={cn(
-        "h-60 flex items-center justify-center relative overflow-hidden z-10",
+        "h-80 flex items-center justify-center relative overflow-hidden z-10",
         !profile.coverPhotoUrl && "bg-white border-b-2 border-primary"
       )}>
         {!profile.coverPhotoUrl && (
@@ -73,21 +73,21 @@ export function ClassicLayout({ profile, allLinks, getIcon, getUrl }: any) {
               </p>
             )}
             
-            <p className="text-[11px] font-bold text-gray-800 mt-2 px-8 leading-relaxed max-w-sm">
+            <p className="text-[13px] font-bold text-gray-800 mt-2 px-8 leading-relaxed max-w-sm">
               {profile.bio || `I'm ${profile.firstName}! Connecting with me is just a tap away.`}
             </p>
 
             {/* Explicit Contact Info */}
             <div className="mt-3 flex flex-col items-center gap-1">
               {profile.contactMethods.find((m: any) => m.type === 'PHONE' && m.isVisible)?.value && (
-                <div className="flex items-center gap-1.5 text-[11px] font-bold text-primary/80">
-                  <Phone className="h-3 w-3" />
+                <div className="flex items-center gap-1.5 text-[13px] font-bold text-primary/80">
+                  <Phone className="h-3.5 w-3.5" />
                   <span>{profile.contactMethods.find((m: any) => m.type === 'PHONE' && m.isVisible)?.value}</span>
                 </div>
               )}
               {profile.contactMethods.find((m: any) => m.type === 'EMAIL' && m.isVisible)?.value && (
-                <div className="flex items-center gap-1.5 text-[11px] font-bold text-primary/80">
-                  <Mail className="h-3 w-3" />
+                <div className="flex items-center gap-1.5 text-[13px] font-bold text-primary/80">
+                  <Mail className="h-3.5 w-3.5" />
                   <span>{profile.contactMethods.find((m: any) => m.type === 'EMAIL' && m.isVisible)?.value}</span>
                 </div>
               )}
@@ -108,10 +108,12 @@ export function ClassicLayout({ profile, allLinks, getIcon, getUrl }: any) {
           </div>
 
           <div className="flex w-full gap-2 mt-8">
-            <Button className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl h-12 font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98]">
-              <Download className="h-4 w-4" />
-              Save to Contacts
-            </Button>
+            <a href={`/api/vcard/${profile.username}`} className="flex-1">
+              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl h-12 font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98]">
+                <Download className="h-4 w-4" />
+                Save to Contacts
+              </Button>
+            </a>
           </div>
         </div>
 

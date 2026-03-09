@@ -99,10 +99,12 @@ export function ExecutiveLayout({ profile, allLinks, getIcon, getUrl }: any) {
         </div>
 
         <div className="sticky bottom-0 left-0 w-full p-6 pt-0 mt-auto bg-white/80 backdrop-blur-md">
-          <Button className="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-xl h-12 font-semibold shadow-lg">
-            <Download className="h-4 w-4 mr-2" />
-            Add to Phonebook
-          </Button>
+          <a href={`/api/vcard/${profile.username}`}>
+            <Button className="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-xl h-12 font-semibold shadow-lg">
+              <Download className="h-4 w-4 mr-2" />
+              Add to Phonebook
+            </Button>
+          </a>
           <p className="text-[8px] text-center mt-4 text-slate-300 font-black uppercase tracking-[0.5em]">ZYRE LINK</p>
         </div>
       </div>

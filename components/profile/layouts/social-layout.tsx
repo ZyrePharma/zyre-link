@@ -69,10 +69,12 @@ export function SocialLayout({ profile, allLinks, getIcon, getUrl }: any) {
         </div>
 
         <div className="w-full mt-12 mb-8">
-           <Button className="w-full h-16 bg-white text-primary hover:bg-slate-100 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-2xl flex items-center justify-center gap-3">
-              <Download className="h-5 w-5" />
-              Get My Contact
-           </Button>
+           <a href={`/api/vcard/${profile.username}`}>
+             <Button className="w-full h-16 bg-white text-primary hover:bg-slate-100 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-2xl flex items-center justify-center gap-3">
+                <Download className="h-5 w-5" />
+                Get My Contact
+             </Button>
+           </a>
         </div>
 
         <div className="flex gap-4 mt-4 text-slate-600">
