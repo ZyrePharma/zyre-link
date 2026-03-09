@@ -108,7 +108,7 @@ export function AccountForm({ initialEmail }: AccountFormProps) {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto shadow-xl border border-primary/20 bg-card text-card-foreground">
+    <Card className="w-full max-w-2xl mx-auto shadow-xl border border-primary/20 bg-card text-card-foreground light">
       <CardHeader>
         <CardTitle>Login Credentials</CardTitle>
         <CardDescription>
@@ -117,7 +117,7 @@ export function AccountForm({ initialEmail }: AccountFormProps) {
       </CardHeader>
       <CardContent className="space-y-6">
         {forcePasswordChange && (
-          <Alert variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20 animate-in fade-in slide-in-from-top-4 duration-500">
+          <Alert variant="destructive" className="bg-destructive/5 text-destructive border-destructive/20">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle className="font-bold">Password Change Required</AlertTitle>
             <AlertDescription>

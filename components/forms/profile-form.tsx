@@ -184,7 +184,7 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto shadow-xl border border-primary/20 bg-card text-card-foreground overflow-hidden">
+    <Card className="w-full max-w-2xl mx-auto shadow-xl border border-primary/20 bg-card text-card-foreground overflow-hidden light">
       <Form {...(form as any)}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-0">
           {/* Visual Preview Header */}
@@ -396,10 +396,9 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
                                 )}
                                 {layout.id === 'modern' && (
                                   <div className="w-full h-full flex flex-col items-center p-1 pt-6 scale-[0.8] bg-gray-50/50">
-                                    <div className="absolute top-0 w-full h-10 bg-gradient-to-b from-primary/10 to-transparent" />
+                                    <div className="absolute top-0 w-full h-8 bg-primary/5" />
                                     <div className="w-10 h-10 rounded-full bg-primary ring-2 ring-white shadow-md z-10" />
                                     <div className="w-14 h-1.5 bg-gray-900 rounded-full mt-3 z-10" />
-                                    <div className="w-8 h-1 bg-primary/40 rounded-full mt-1 z-10" />
                                     <div className="mt-4 space-y-2 w-full px-2">
                                       <div className="w-full h-4 bg-white border border-gray-100 rounded-xl shadow-xs" />
                                       <div className="w-full h-4 bg-white border border-gray-100 rounded-xl shadow-xs" />

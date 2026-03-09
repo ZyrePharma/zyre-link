@@ -15,17 +15,31 @@ interface CardSideProps {
 export const CardFront = forwardRef<HTMLDivElement, CardSideProps>(
   ({ templateUrl, logoUrl }, ref) => {
     return (
-      <div 
+      <div
         ref={ref}
-        style={{ position: "relative", width: "1280px", height: "800px", backgroundColor: "white", overflow: "hidden", borderRadius: "30px", flexShrink: 0 }}
+        style={{
+          position: "relative",
+          width: "1280px",
+          height: "800px",
+          backgroundColor: "white",
+          overflow: "hidden",
+          borderRadius: "30px",
+          flexShrink: 0,
+        }}
       >
-        {/* Background Overlay */}
         {templateUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={templateUrl} alt="Background" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "fill" }} />
+          <img
+            src={templateUrl}
+            alt="Background"
+            style={{
+              position: "absolute",
+              top: 0, left: 0,
+              width: "100%", height: "100%",
+              objectFit: "cover",
+            }}
+          />
         )}
-
-        {/* Foreground Company Logo */}
+ {/* Foreground Company Logo */}
         <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "center" }}>
            {/* eslint-disable-next-line @next/next/no-img-element */}
            <img src={logoUrl || "/zyre_logo_with_text.png"} alt="Company Logo" style={{ width: "580px", height: "auto" }} />
@@ -57,14 +71,26 @@ export const CardBack = forwardRef<HTMLDivElement, CardSideProps>(
         {/* Background Overlay */}
         {templateUrl && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={templateUrl} alt="Background" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "fill" }} />
+          <img 
+            src={templateUrl} 
+            alt="Background" 
+            style={{ 
+              position: "absolute", 
+              top: 0, 
+              left: 0, 
+              width: "100%", 
+              height: "100%", 
+              objectFit: "cover",
+              transform: "scaleX(-1)"
+            }} 
+          />
         )}
 
         <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", padding: "0 120px" }}>
           {/* User Name */}
           <div style={{ flex: 1, paddingRight: "50px" }}>
              {user?.name ? (
-                <h2 style={{ fontSize: "68px", fontWeight: 700, color: "#1a1a1a", margin: 0, lineHeight: 1.2 }}>
+                <h2 style={{ fontSize: "60px", fontWeight: 700, color: "#1a1a1a", margin: 0, lineHeight: 1.2 }}>
                    {user.name}
                 </h2>
              ) : (
@@ -75,12 +101,12 @@ export const CardBack = forwardRef<HTMLDivElement, CardSideProps>(
            {/* QR Code Segment */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "25px" }}>
              {qrDataUrl && (
-                <div style={{ width: "300px", height: "300px", backgroundColor: "white", padding: "12px", borderRadius: "15px", boxShadow: "0 4px 15px rgba(0,0,0,0.08)" }}>
+                <div style={{ width: "360px", height: "360px", backgroundColor: "white", padding: "12px", borderRadius: "15px", boxShadow: "0 4px 15px rgba(0,0,0,0.08)" }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={qrDataUrl} alt="QR Code" style={{ width: "100%", height: "100%" }} />
                 </div>
              )}
-             <div style={{ marginTop: "16px", fontSize: "28px", fontWeight: 600, letterSpacing: "10px", marginLeft: "15px" }}>
+             <div style={{ marginTop: "16px", fontSize: "32px", fontWeight: 600, letterSpacing: "10px", marginLeft: "15px" }}>
                <span style={{ color: "var(--primary)" }}>ZYRE</span>{" "}
                <span style={{ color: "var(--secondary)" }}>LINK</span>
              </div>
@@ -139,8 +165,8 @@ export const CardDesignRenderer = ({
       style={{
         width: "2620px", /* Two 1280px cards + 60px gap */
         height: "800px",
-        boxSizing: "border-box",
         gap: "60px",
+        boxSizing: "border-box",
       }}
     >
       <CardFront ref={frontRef} templateUrl={templateUrl} logoUrl={logoUrl} cardUid={cardUid} user={user} profile={profile} />

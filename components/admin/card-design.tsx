@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toPng } from "html-to-image";
 import { toast } from "sonner";
 import { Download, Loader2, Image as ImageIcon, Repeat, LayoutTemplate, Upload } from "lucide-react";
@@ -18,8 +19,6 @@ import {
   DialogTrigger,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 
 interface DirectoryUser {
   id: string;
@@ -44,6 +43,7 @@ export default function CardDesign({
   users: DirectoryUser[];
   templateUrl: string | null;
 }) {
+  const router = useRouter();
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [isDownloadingSelected, setIsDownloadingSelected] = useState(false);
   const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
@@ -51,6 +51,11 @@ export default function CardDesign({
   const [currentTemplateUrl, setCurrentTemplateUrl] = useState<string | null>(templateUrl);
   const [settingsOpen, setSettingsOpen] = useState(false);
   
+  // Update local template state if prop changes
+  useEffect(() => {
+    setCurrentTemplateUrl(templateUrl);
+  }, [templateUrl]);
+
   const frontRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const backRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -222,22 +227,26 @@ export default function CardDesign({
                 Set Template
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px] rounded-2xl border-primary/20 shadow-2xl">
-              <DialogHeader>
-                <DialogTitle>Card Design Template</DialogTitle>
-                <DialogDescription>
-                  Upload a background template used for generating card designs.
-                </DialogDescription>
-              </DialogHeader>
-              
-              <CardTemplateForm 
-                initialTemplateUrl={currentTemplateUrl}
-                onSave={(url) => {
-                  setCurrentTemplateUrl(url);
-                  setSettingsOpen(false);
-                }}
-                onCancel={() => setSettingsOpen(false)}
-              />
+            <DialogContent className="sm:max-w-[500px] rounded-2xl border-primary/20 shadow-2xl p-0 overflow-hidden">
+               <div className="h-1.5 w-full bg-primary/10" />
+               <div className="p-6">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl font-bold tracking-tight">Card Design Template</DialogTitle>
+                    <DialogDescription>
+                      Upload a background template used for generating card designs.
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <CardTemplateForm 
+                    initialTemplateUrl={currentTemplateUrl}
+                    onSave={(url) => {
+                      setCurrentTemplateUrl(url);
+                      setSettingsOpen(false);
+                      router.refresh();
+                    }}
+                    onCancel={() => setSettingsOpen(false)}
+                  />
+               </div>
             </DialogContent>
           </Dialog>
         </div>
@@ -252,14 +261,14 @@ export default function CardDesign({
           const scale = Math.max(0.1, containerWidth / 1280);
 
           return (
-            <Card key={user.id} className="overflow-hidden shadow-sm relative group bg-muted/20">
+            <Card key={user.id} className="overflow-hidden shadow-sm relative group bg-muted/20 border-border/50">
               {/* Checkbox Overlay */}
               <div className="absolute top-3 left-3 z-20">
                 <input 
                   type="checkbox" 
                   checked={isSelected}
                   onChange={() => toggleSelect(user.id)}
-                  className="h-5 w-5 rounded border-white/20 backdrop-blur-sm cursor-pointer accent-white"
+                  className="h-5 w-5 rounded border-white/20 backdrop-blur-sm cursor-pointer accent-primary"
                 />
               </div>
 
@@ -268,59 +277,57 @@ export default function CardDesign({
                 {/* Scaled Wrapper */}
                 <div className="absolute inset-0 w-full h-full">
                    {/* Hover Overlay */}
-                   <div className="absolute inset-0  backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 flex items-center justify-center gap-4">
+                   <div className="absolute inset-0  backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 flex items-center justify-center gap-4 bg-black/5">
                       <Button 
                          size="icon" 
                          variant="secondary" 
-                         className="h-12 w-12 rounded-full shadow-xl hover:scale-110 transition-transform"
+                         className="h-12 w-12 rounded-full shadow-xl hover:scale-110 transition-transform bg-white/90 hover:bg-white"
                          title="Flip Card"
                          onClick={(e) => toggleFlip(user.id, e)}
                       >
-                         <Repeat className="h-6 w-6" />
+                         <Repeat className="h-6 w-6 text-primary" />
                       </Button>
                       <Button 
                          size="icon" 
                          variant="secondary" 
-                         className="h-12 w-12 rounded-full shadow-xl hover:scale-110 transition-transform"
+                         className="h-12 w-12 rounded-full shadow-xl hover:scale-110 transition-transform bg-white/90 hover:bg-white"
                          disabled={downloadingId === user.id}
                          onClick={(e) => handleDownload(user, e)}
                          title="Download Card"
                       >
                          {downloadingId === user.id ? (
-                           <Loader2 className="h-6 w-6 animate-spin" />
+                           <Loader2 className="h-6 w-6 animate-spin text-primary" />
                          ) : (
-                           <Download className="h-6 w-6" />
+                           <Download className="h-6 w-6 text-primary" />
                          )}
                       </Button>
                    </div>
 
                    <div 
-                      className="absolute top-0 left-0 h-full"
+                      className="absolute top-0 left-0"
                       style={{ 
                          width: "1280px",
+                         height: "800px",
                          transform: `scale(${scale})`,
-                         transformOrigin: "top left" 
+                         transformOrigin: "0 0" 
                       }}
                    >
-                       <div
-                         style={{ width: "1280px", height: "800px" }}
-                         className="w-[1280px] h-[800px]"
-                       >
-                         <CardDesignRenderer
-                           frontRef={(el) => { frontRefs.current[user.id] = el; }}
-                           backRef={(el) => { backRefs.current[user.id] = el; }}
-                           cardUid={user.cardUid || "UNASSIGNED"}
-                           user={user}
-                           profile={user.profile}
-                           templateUrl={user.company?.cardTemplateUrl || currentTemplateUrl}
-                           logoUrl={user.company?.logoUrl || "/zyre_logo_with_text.png"}
-                            mode="preview"
-                            isFlipped={isFlipped}
-                         />
-                       </div>
+                        <CardDesignRenderer
+                          frontRef={(el) => { frontRefs.current[user.id] = el; }}
+                          backRef={(el) => { backRefs.current[user.id] = el; }}
+                          cardUid={user.cardUid || "UNASSIGNED"}
+                          user={user}
+                          profile={user.profile}
+                          templateUrl={user.company?.cardTemplateUrl || currentTemplateUrl}
+                          logoUrl={user.company?.logoUrl || "/zyre_logo_with_text.png"}
+                           mode="preview"
+                           isFlipped={isFlipped}
+                        />
                    </div>
                 </div>
               </div>
+
+              
             </Card>
           );
         })}

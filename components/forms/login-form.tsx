@@ -48,14 +48,14 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center">Login to Zyre Link</CardTitle>
-        <CardDescription className="text-center">
+    <Card className="w-full max-w-md mx-auto shadow-xl border border-primary/20 bg-card text-card-foreground light">
+      <CardHeader className="space-y-1 pb-6">
+        <CardTitle className="text-3xl font-bold text-center tracking-tight">Login</CardTitle>
+        <CardDescription className="text-center text-muted-foreground">
           Enter your company email to access your account
         </CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-4">
+      <CardContent className="grid gap-6">
         {/* <div className="grid grid-cols-1 ">
           <Button variant="outline" onClick={() => handleSSOLogin("google")}>
             <Mail className="mr-2 h-4 w-4" />
@@ -81,6 +81,7 @@ export function LoginForm() {
               placeholder="name@company.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="rounded-xl focus:ring-primary/20"
               required
             />
           </div>
@@ -104,7 +105,7 @@ export function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="pr-10"
+                className="pr-10 rounded-xl focus:ring-primary/20"
               />
               <button
                 type="button"
@@ -123,7 +124,7 @@ export function LoginForm() {
             </div>
           </div>
           {error && <p className="text-sm text-red-500 font-medium">{error}</p>}
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full rounded-xl h-11 font-bold shadow-md bg-primary text-primary-foreground hover:bg-primary/90" disabled={isLoading}>
             {isLoading ? "Signing in..." : "Sign In"}
           </Button>
         </form>

@@ -178,8 +178,8 @@ export function UserForm() {
           Add New User
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] rounded-3xl border-border bg-background shadow-2xl overflow-hidden p-0">
-        <div className="h-1.5 w-full bg-gradient-to-r from-primary/40 via-primary/20 to-transparent" />
+      <DialogContent className="sm:max-w-[425px] rounded-3xl border-border bg-background shadow-2xl overflow-hidden p-0 light">
+        <div className="h-1.5 w-full bg-primary/10" />
         <DialogHeader className="px-6 pt-6 flex flex-col gap-1">
           <DialogTitle className="text-2xl font-bold tracking-tight text-foreground">Add New User</DialogTitle>
         </DialogHeader>
