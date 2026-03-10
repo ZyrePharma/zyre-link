@@ -34,7 +34,7 @@ export default async function EditProfilePage() {
         
       </div>
 
-      <ProfileForm initialData={user.profile} />
+      <ProfileForm initialData={user.profile} userEmail={user.email} />
     </div>
   );
 }

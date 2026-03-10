@@ -40,8 +40,8 @@ export function ShareButton({ username, hasBannerImage }: ShareButtonProps) {
       className={cn(
         "absolute top-4 right-4 p-2.5 rounded-xl transition-all active:scale-95 z-10 shadow-sm backdrop-blur-md",
         hasBannerImage 
-          ? "bg-black/20 hover:bg-black/40 text-white" 
-          : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+          ? "bg-black/20 text-white" 
+          : "bg-gray-100 text-gray-700"
       )}
       title="Share Profile"
     >

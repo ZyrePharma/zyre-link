@@ -10,18 +10,34 @@ export function CardLayout({ profile, allLinks, getIcon, getUrl }: any) {
     <div className="w-full md:max-w-md bg-neutral-100 min-h-screen md:min-h-0 md:rounded-[2rem] md:my-4 overflow-hidden flex flex-col relative text-black p-4 gap-4">
       
       {/* Profile Card */}
-      <div className="bg-white rounded-[2rem] shadow-xl border border-white flex flex-col items-center relative overflow-hidden group">
+      <div className="bg-white rounded-[2rem] shadow-xl border border-white flex flex-col items-center relative overflow-hidden">
         <div className="w-full h-32 bg-neutral-100 relative overflow-hidden">
           {profile.coverPhotoUrl ? (
             <Image
               src={profile.coverPhotoUrl}
               alt="Cover"
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-700"
+              className="object-cover transition-transform duration-700"
               priority
             />
           ) : (
-             <div className="absolute top-0 left-0 w-24 h-24 bg-primary/10 rounded-br-[4rem]" />
+            <div className="absolute inset-0 bg-white flex items-center justify-center">
+              {profile.user.company?.logoUrl ? (
+                <div className="relative h-20 w-64 px-4">
+                  <Image 
+                    src={profile.user.company.logoUrl} 
+                    alt={profile.user.company.name || "Company Logo"} 
+                    fill 
+                    className="object-contain filter drop-shadow-xl"
+                    priority
+                  />
+                </div>
+              ) : (
+                <h1 className="text-primary text-3xl font-black tracking-widest opacity-90 select-none">
+                  {profile.user.company?.name?.toUpperCase() || "ZYRE"}
+                </h1>
+              )}
+            </div>
           )}
           <div className="absolute top-4 right-4 z-10">
             <ShareButton 
@@ -40,33 +56,66 @@ export function CardLayout({ profile, allLinks, getIcon, getUrl }: any) {
           </AvatarFallback>
         </Avatar>
 
-        <div className="mt-6 text-center z-10">
+        <div className="mt-6 text-center z-10 w-full">
           <h2 className="text-2xl font-black tracking-tight">{profile.firstName} {profile.lastName}</h2>
-          <p className="text-primary font-bold text-[10px] uppercase tracking-widest mt-1 bg-primary/5 px-3 py-1 rounded-full">{profile.jobTitle || "Professional"}</p>
+          <p className="text-primary font-bold text-[10px] uppercase tracking-widest mt-1 bg-primary/5 px-3 py-1 rounded-full inline-block">{profile.jobTitle || "Professional"}</p>
+          
+          <p className="mt-4 text-[12px] text-gray-600 font-medium leading-relaxed max-w-[250px] mx-auto">
+            {profile.bio || `I'm ${profile.firstName}! Connecting with me is just a tap away.`}
+          </p>
+
+          {/* Explicit Contact Info */}
+          <div className="mt-4 flex flex-col items-center gap-1.5 w-full">
+            {profile.contactMethods.filter((m: any) => m.isVisible).map((method: any) => (
+              <div key={method.id} className="flex items-center gap-1.5 text-[11px] font-bold text-primary/80">
+                <div className="h-3 w-3 flex items-center justify-center scale-75 opacity-70">
+                  {getIcon(method.type)}
+                </div>
+                <span>{method.value}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="w-full flex gap-3 mt-8">
-            <a href={`tel:${profile.contactMethods.find((m: any) => m.type === 'PHONE')?.value || '#'}`} className="flex-1 h-12 rounded-2xl bg-neutral-900 flex items-center justify-center hover:scale-105 transition-all shadow-lg active:scale-95">
-                <Phone className="h-5 w-5 text-white" />
+        <div className="w-full h-px bg-neutral-100" />
+
+        <div className="w-full flex flex-wrap gap-4 py-6 justify-center px-4">
+          {profile.contactMethods.filter((m: any) => m.isVisible).map((method: any) => (
+            <a 
+              key={method.id}
+              href={getUrl(method)} 
+              target={method.type === 'WHATSAPP' || method.type === 'VIBER' ? "_blank" : undefined}
+              rel={method.type === 'WHATSAPP' || method.type === 'VIBER' ? "noopener noreferrer" : undefined}
+              className="h-14 w-14 rounded-full bg-white border border-slate-100 flex items-center justify-center text-primary shadow-md transition-all active:scale-95 active:bg-slate-50"
+              title={method.label || method.type}
+            >
+              <div className="scale-110">
+                {getIcon(method.type)}
+              </div>
             </a>
-            <a href={`mailto:${profile.contactMethods.find((m: any) => m.type === 'EMAIL')?.value || '#'}`} className="flex-1 h-12 rounded-2xl bg-neutral-900 flex items-center justify-center hover:scale-105 transition-all shadow-lg active:scale-95">
-                <Mail className="h-5 w-5 text-white" />
+          ))}
+          {/* Always add SMS for PHONES if any */}
+          {profile.contactMethods.filter((m: any) => m.isVisible && m.type === 'PHONE').slice(0, 1).map((method: any) => (
+            <a 
+              key={`sms-${method.id}`}
+              href={`sms:${method.value}`} 
+              className="h-14 w-14 rounded-full bg-white border border-slate-100 flex items-center justify-center text-primary shadow-md transition-all active:scale-95 active:bg-slate-50"
+              title="SMS"
+            >
+              <MessageSquare className="h-6 w-6" />
             </a>
-            <a href={`sms:${profile.contactMethods.find((m: any) => m.type === 'PHONE')?.value || '#'}`} className="flex-1 h-12 rounded-2xl bg-neutral-900 flex items-center justify-center hover:scale-105 transition-all shadow-lg active:scale-95">
-                <MessageSquare className="h-5 w-5 text-white" />
-            </a>
+          ))}
         </div>
         </div>
       </div>
 
       <a href={`/api/vcard/${profile.username}`} className="block">
-        <div className="bg-primary rounded-3xl p-6 shadow-lg flex items-center justify-between group cursor-pointer hover:bg-primary/95 transition-all active:scale-[0.98]">
+        <div className="bg-primary rounded-[2rem] p-4 shadow-2xl flex items-center justify-between transition-all active:scale-[0.98] border-2 border-primary/20">
           <div className="flex flex-col">
-              <h3 className="text-primary-foreground font-black text-lg">Save Contact</h3>
-              <p className="text-primary-foreground/70 text-[10px] font-bold uppercase tracking-wider">Fast & Easy</p>
+              <h3 className="text-primary-foreground font-black text-base uppercase tracking-tighter">Save Contact</h3>
           </div>
-          <div className="h-12 w-12 bg-white/20 rounded-2xl flex items-center justify-center text-white">
-              <Download className="h-6 w-6" />
+          <div className="h-10 w-10 bg-white/20 rounded-2xl flex items-center justify-center text-white backdrop-blur-sm border border-white/20">
+              <Download className="h-5 w-5" />
           </div>
         </div>
       </a>
@@ -77,13 +126,17 @@ export function CardLayout({ profile, allLinks, getIcon, getUrl }: any) {
             <a 
                 key={item.id}
                 href={getUrl(item)}
-                className="bg-white rounded-3xl p-6 shadow-md border border-white hover:border-primary/20 transition-all flex flex-col items-center text-center gap-3 active:scale-95"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white rounded-3xl p-3 shadow-md border border-white transition-all flex flex-col items-center text-center gap-2 active:scale-95"
             >
-                <div className="h-10 w-10 flex items-center justify-center text-primary bg-primary/5 rounded-xl">
+                <div className="h-8 w-8 flex items-center justify-center text-primary bg-primary/5 rounded-xl">
                     {getIcon(item.type, item.platform)}
                 </div>
-                <span className="text-xs font-black uppercase tracking-tight truncate w-full">{item.platform || item.title}</span>
-                <ArrowUpRight className="h-3 w-3 text-neutral-300 absolute top-4 right-4" />
+                <span className="text-xs font-black uppercase tracking-tight truncate w-full px-2">
+                    {item.title || item.label || item.platform || 'Link'}
+                </span>
+                <ArrowUpRight className="h-2.5 w-2.5 text-neutral-300 absolute top-4 right-4" />
             </a>
         ))}
       </div>

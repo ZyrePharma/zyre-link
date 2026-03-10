@@ -79,38 +79,39 @@ export function ClassicLayout({ profile, allLinks, getIcon, getUrl }: any) {
 
             {/* Explicit Contact Info */}
             <div className="mt-3 flex flex-col items-center gap-1">
-              {profile.contactMethods.find((m: any) => m.type === 'PHONE' && m.isVisible)?.value && (
-                <div className="flex items-center gap-1.5 text-[13px] font-bold text-primary/80">
-                  <Phone className="h-3.5 w-3.5" />
-                  <span>{profile.contactMethods.find((m: any) => m.type === 'PHONE' && m.isVisible)?.value}</span>
+              {profile.contactMethods.filter((m: any) => m.isVisible).map((method: any) => (
+                <div key={method.id} className="flex items-center gap-1.5 text-[13px] font-bold text-primary/80">
+                  <div className="h-3.5 w-3.5 flex items-center justify-center scale-75">
+                    {getIcon(method.type)}
+                  </div>
+                  <span>{method.value}</span>
                 </div>
-              )}
-              {profile.contactMethods.find((m: any) => m.type === 'EMAIL' && m.isVisible)?.value && (
-                <div className="flex items-center gap-1.5 text-[13px] font-bold text-primary/80">
-                  <Mail className="h-3.5 w-3.5" />
-                  <span>{profile.contactMethods.find((m: any) => m.type === 'EMAIL' && m.isVisible)?.value}</span>
-                </div>
-              )}
+              ))}
             </div>
           </div>
-
+ 
           {/* Quick Actions */}
-          <div className="flex gap-6 mt-6">
-            <a href={`tel:${profile.contactMethods.find((m: any) => m.type === 'PHONE')?.value || '#'}`} className="h-11 w-11 rounded-full bg-secondary flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-md">
-              <Phone className="h-5 w-5 text-secondary-foreground" />
-            </a>
-            <a href={`sms:${profile.contactMethods.find((m: any) => m.type === 'PHONE')?.value || '#'}`} className="h-11 w-11 rounded-full bg-secondary flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-md">
-              <MessageSquare className="h-5 w-5 text-secondary-foreground" />
-            </a>
-            <a href={`mailto:${profile.contactMethods.find((m: any) => m.type === 'EMAIL')?.value || '#'}`} className="h-11 w-11 rounded-full bg-secondary flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-md">
-              <Mail className="h-5 w-5 text-secondary-foreground" />
-            </a>
+          <div className="flex flex-wrap justify-center gap-4 mt-6 px-6">
+            {profile.contactMethods.filter((m: any) => m.isVisible).map((method: any) => (
+              <a 
+                key={method.id}
+                href={getUrl(method)} 
+                target={method.type === 'WHATSAPP' || method.type === 'VIBER' ? "_blank" : undefined}
+                rel={method.type === 'WHATSAPP' || method.type === 'VIBER' ? "noopener noreferrer" : undefined}
+                className="h-14 w-14 rounded-full bg-white border border-slate-100 flex items-center justify-center text-primary shadow-md active:scale-95 active:bg-slate-50 transition-all font-bold"
+                title={method.label || method.type}
+              >
+                <div className="scale-110">
+                  {getIcon(method.type)}
+                </div>
+              </a>
+            ))}
           </div>
 
           <div className="flex w-full gap-2 mt-8">
             <a href={`/api/vcard/${profile.username}`} className="flex-1">
-              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl h-12 font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98]">
-                <Download className="h-4 w-4" />
+              <Button className="w-full bg-primary text-primary-foreground rounded-2xl h-16 font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl transition-all active:scale-[0.98]">
+                <Download className="h-5 w-5" />
                 Save to Contacts
               </Button>
             </a>
@@ -130,7 +131,7 @@ export function ClassicLayout({ profile, allLinks, getIcon, getUrl }: any) {
                 href={getUrl(item)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center p-3.5 bg-[#f3f4f6]/80 hover:bg-[#ebedef] rounded-xl transition-all group active:scale-[0.99] border border-transparent hover:border-gray-200"
+                className="flex items-center p-3.5 bg-[#f3f4f6]/80 rounded-xl transition-all active:scale-[0.99] border border-transparent shadow-sm"
               >
                 <div className="h-10 w-10 flex items-center justify-center mr-3 shrink-0">
                   {getIcon(item.type, item.platform)}
@@ -140,13 +141,13 @@ export function ClassicLayout({ profile, allLinks, getIcon, getUrl }: any) {
                     {item.title || item.label || item.platform || item.type?.toLowerCase().replace('_', ' ') || 'Link'}
                   </p>
                 </div>
-                <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" />
+                <ChevronRight className="h-4 w-4 text-gray-400" />
               </a>
             ))}
           </div>
 
           <div className="mt-10 flex flex-col items-center gap-6">
-            <div className="text-center opacity-40 hover:opacity-100 transition-opacity">
+            <div className="text-center opacity-40">
               <p className="text-[9px] font-bold text-gray-400 tracking-[0.2em] uppercase">
                 Powered by <span className="text-gray-600">ZYRE</span> <span className="text-secondary">LINK</span>
               </p>

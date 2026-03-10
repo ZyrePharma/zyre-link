@@ -42,7 +42,7 @@ export default async function AdminUserProfilePage({
         </p>
       </div>
 
-      <ProfileForm userId={user.id} initialData={user.profile} />
+      <ProfileForm userId={user.id} initialData={user.profile} userEmail={user.email} />
     </div>
   );
 }

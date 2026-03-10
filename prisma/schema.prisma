@@ -175,8 +175,9 @@ enum ContactType {
   PHONE
   EMAIL
   ADDRESS
-  WEBSITE
-  EXTENSION
+  WHATSAPP
+  VIBER
+  TELEGRAM
 }
 
 model SocialLink {

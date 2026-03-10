@@ -15,11 +15,27 @@ export function ModernLayout({ profile, allLinks, getIcon, getUrl }: any) {
             src={profile.coverPhotoUrl}
             alt="Cover"
             fill
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            className="object-cover transition-transform duration-700"
             priority
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/20 to-white" />
+          <div className="absolute inset-0 bg-white border-b-2 border-primary flex items-center justify-center">
+            {profile.user.company?.logoUrl ? (
+              <div className="relative h-24 w-80 px-4">
+                <Image 
+                  src={profile.user.company.logoUrl} 
+                  alt={profile.user.company.name || "Company Logo"} 
+                  fill 
+                  className="object-contain filter drop-shadow-xl"
+                  priority
+                />
+              </div>
+            ) : (
+              <h1 className="text-primary text-4xl font-black tracking-widest opacity-90 select-none">
+                {profile.user.company?.name?.toUpperCase() || "ZYRE"}
+              </h1>
+            )}
+          </div>
         )}
         <div className="absolute top-6 right-6 z-20">
           <ShareButton 
@@ -50,34 +66,61 @@ export function ModernLayout({ profile, allLinks, getIcon, getUrl }: any) {
         </div>
 
         <p className="mt-6 text-sm text-center text-gray-600 px-4 leading-relaxed font-medium">
-          {profile.bio || "Connecting professionals through Zyre Link."}
+          {profile.bio || `I'm ${profile.firstName}! Connecting with me is just a tap away.`}
         </p>
 
-        <div className="grid grid-cols-3 gap-8 mt-10 w-full px-4">
-          <a href={`tel:${profile.contactMethods.find((m: any) => m.type === 'PHONE')?.value || '#'}`} className="flex flex-col items-center gap-2 group">
-            <div className="h-14 w-14 rounded-2xl bg-secondary/50 flex items-center justify-center border border-secondary transition-all group-hover:bg-secondary group-hover:-translate-y-1">
-              <Phone className="h-6 w-6 text-secondary-foreground" />
+        {/* Explicit Contact Info */}
+        <div className="mt-4 flex flex-col items-center gap-1">
+          {profile.contactMethods.filter((m: any) => m.isVisible).map((method: any) => (
+            <div key={method.id} className="flex items-center gap-1.5 text-xs font-bold text-primary/80">
+              <div className="h-3 w-3 flex items-center justify-center scale-75">
+                {getIcon(method.type)}
+              </div>
+              <span>{method.value}</span>
             </div>
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Call</span>
-          </a>
-          <a href={`sms:${profile.contactMethods.find((m: any) => m.type === 'PHONE')?.value || '#'}`} className="flex flex-col items-center gap-2 group">
-            <div className="h-14 w-14 rounded-2xl bg-secondary/50 flex items-center justify-center border border-secondary transition-all group-hover:bg-secondary group-hover:-translate-y-1">
-              <MessageSquare className="h-6 w-6 text-secondary-foreground" />
-            </div>
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">SMS</span>
-          </a>
-          <a href={`mailto:${profile.contactMethods.find((m: any) => m.type === 'EMAIL')?.value || '#'}`} className="flex flex-col items-center gap-2 group">
-            <div className="h-14 w-14 rounded-2xl bg-secondary/50 flex items-center justify-center border border-secondary transition-all group-hover:bg-secondary group-hover:-translate-y-1">
-              <Mail className="h-6 w-6 text-secondary-foreground" />
-            </div>
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Email</span>
-          </a>
+          ))}
         </div>
 
-        <div className="w-full mt-10 space-y-3">
+        <div className="flex flex-wrap gap-6 mt-10 w-full px-4 justify-center">
+          {profile.contactMethods.filter((m: any) => m.isVisible).map((method: any) => (
+            <a 
+              key={method.id}
+              href={getUrl(method)} 
+              target={method.type === 'WHATSAPP' || method.type === 'VIBER' ? "_blank" : undefined}
+              rel={method.type === 'WHATSAPP' || method.type === 'VIBER' ? "noopener noreferrer" : undefined}
+              className="flex flex-col items-center gap-2 transition-transform active:scale-95"
+              title={method.label || method.type}
+            >
+              <div className="h-14 w-14 rounded-full bg-white border border-slate-100 flex items-center justify-center text-primary shadow-md">
+                <div className="scale-110">
+                  {getIcon(method.type)}
+                </div>
+              </div>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none text-center">
+                {method.type === 'PHONE' ? 'Call' : (method.type === 'EMAIL' ? 'Email' : method.label || method.type)}
+              </span>
+            </a>
+          ))}
+          {/* Always add SMS for PHONES if any */}
+          {profile.contactMethods.filter((m: any) => m.isVisible && m.type === 'PHONE').slice(0, 1).map((method: any) => (
+            <a 
+              key={`sms-${method.id}`}
+              href={`sms:${method.value}`} 
+              className="flex flex-col items-center gap-2 transition-transform active:scale-95"
+              title="SMS"
+            >
+              <div className="h-14 w-14 rounded-full bg-white border border-slate-100 flex items-center justify-center text-primary shadow-md">
+                <MessageSquare className="h-6 w-6" />
+              </div>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none text-center">SMS</span>
+            </a>
+          ))}
+        </div>
+
+        <div className="w-full mt-10 space-y-3 px-4">
           <a href={`/api/vcard/${profile.username}`}>
-            <Button className="w-full bg-gray-900 hover:bg-black text-white rounded-2xl h-14 font-bold text-base shadow-xl transition-all active:scale-[0.98]">
-              <Download className="h-5 w-5 mr-2" />
+            <Button className="w-full bg-slate-900 text-white rounded-2xl h-16 font-black text-sm uppercase tracking-widest shadow-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+              <Download className="h-5 w-5" />
               Save Contact
             </Button>
           </a>
@@ -90,16 +133,18 @@ export function ModernLayout({ profile, allLinks, getIcon, getUrl }: any) {
               <a
                 key={item.id}
                 href={getUrl(item)}
-                className="flex items-center p-5 bg-white border border-gray-100 rounded-[1.5rem] shadow-sm hover:shadow-md hover:border-primary/20 transition-all group relative overflow-hidden"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center p-5 bg-white border border-gray-100 rounded-[1.5rem] shadow-sm transition-all active:scale-[0.99] relative overflow-hidden"
               >
-                <div className="absolute top-0 left-0 w-1 h-full bg-primary/10 group-hover:bg-primary transition-colors" />
-                <div className="h-10 w-10 rounded-xl bg-gray-50 flex items-center justify-center mr-4 shrink-0 group-hover:bg-primary/5">
+                <div className="absolute top-0 left-0 w-1 h-full bg-primary/10" />
+                <div className="h-10 w-10 rounded-xl bg-gray-50 flex items-center justify-center mr-4 shrink-0">
                   {getIcon(item.type, item.platform)}
                 </div>
                 <p className="flex-1 font-bold text-gray-700">
                   {item.title || item.label || item.platform}
                 </p>
-                <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-primary transition-all" />
+                <ChevronRight className="h-4 w-4 text-gray-300 transition-all" />
               </a>
             ))}
           </div>

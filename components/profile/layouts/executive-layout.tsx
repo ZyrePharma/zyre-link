@@ -11,7 +11,7 @@ export function ExecutiveLayout({ profile, allLinks, getIcon, getUrl }: any) {
       
       {/* Header Banner */}
       <div className="h-40 bg-slate-900 relative overflow-hidden">
-        {profile.coverPhotoUrl && (
+        {profile.coverPhotoUrl ? (
           <Image
             src={profile.coverPhotoUrl}
             alt="Cover"
@@ -19,8 +19,25 @@ export function ExecutiveLayout({ profile, allLinks, getIcon, getUrl }: any) {
             className="object-cover opacity-60"
             priority
           />
+        ) : (
+          <div className="absolute inset-0 bg-white border-b border-slate-100 flex items-center justify-center">
+            {profile.user.company?.logoUrl ? (
+              <div className="relative h-20 w-64 px-4">
+                <Image 
+                  src={profile.user.company.logoUrl} 
+                  alt={profile.user.company.name || "Company Logo"} 
+                  fill 
+                  className="object-contain filter drop-shadow-xl"
+                  priority
+                />
+              </div>
+            ) : (
+              <h1 className="text-slate-900 text-3xl font-black tracking-widest opacity-90 select-none">
+                {profile.user.company?.name?.toUpperCase() || "ZYRE"}
+              </h1>
+            )}
+          </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
         <div className="absolute top-6 right-6">
           <ShareButton 
             username={profile.username} 
@@ -53,28 +70,59 @@ export function ExecutiveLayout({ profile, allLinks, getIcon, getUrl }: any) {
           )}
         </div>
 
-        <div className="mt-8 grid grid-cols-2 gap-3 pb-8 border-b border-slate-100">
-          <a href={`tel:${profile.contactMethods.find((m: any) => m.type === 'PHONE')?.value || '#'}`} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-primary/30 transition-all group">
-            <Phone className="h-4 w-4 text-primary" />
-            <div className="flex flex-col">
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Mobile</span>
-              <span className="text-xs font-bold truncate">Call Now</span>
+        <div className="mt-8 flex flex-wrap gap-6 justify-center pb-8 border-b border-slate-100 px-4">
+          {profile.contactMethods.filter((m: any) => m.isVisible).map((method: any) => (
+            <a 
+              key={method.id}
+              href={getUrl(method)} 
+              target={method.type === 'WHATSAPP' || method.type === 'VIBER' ? "_blank" : undefined}
+              rel={method.type === 'WHATSAPP' || method.type === 'VIBER' ? "noopener noreferrer" : undefined}
+              className="flex flex-col items-center gap-2 transition-all active:scale-95"
+              title={method.label || method.type}
+            >
+              <div className="h-14 w-14 rounded-full bg-white border-2 border-slate-50 flex items-center justify-center text-primary shadow-md">
+                <div className="scale-110">
+                  {getIcon(method.type)}
+                </div>
+              </div>
+              <span className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] leading-none text-center">
+                {method.type === 'PHONE' ? 'Call' : (method.type === 'EMAIL' ? 'Email' : method.label || method.type)}
+              </span>
+            </a>
+          ))}
+          {/* Always add SMS for PHONES if any */}
+          {profile.contactMethods.filter((m: any) => m.isVisible && m.type === 'PHONE').slice(0, 1).map((method: any) => (
+            <a 
+              key={`sms-${method.id}`}
+              href={`sms:${method.value}`} 
+              className="flex flex-col items-center gap-2 transition-all active:scale-95"
+              title="SMS"
+            >
+              <div className="h-14 w-14 rounded-full bg-white border-2 border-slate-50 flex items-center justify-center text-primary shadow-md">
+                <MessageSquare className="h-6 w-6" />
+              </div>
+              <span className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] leading-none text-center">SMS</span>
+            </a>
+          ))}
+        </div>
+
+        {/* Explicit Contact Info */}
+        <div className="mt-6 flex flex-col gap-2">
+          {profile.contactMethods.filter((m: any) => m.isVisible).map((method: any) => (
+            <div key={method.id} className="flex items-center gap-3 text-slate-600">
+              <div className="h-4 w-4 flex items-center justify-center scale-75 opacity-60">
+                {getIcon(method.type)}
+              </div>
+              <span className="text-sm font-medium">{method.value}</span>
             </div>
-          </a>
-          <a href={`mailto:${profile.contactMethods.find((m: any) => m.type === 'EMAIL')?.value || '#'}`} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-primary/30 transition-all group">
-            <Mail className="h-4 w-4 text-primary" />
-            <div className="flex flex-col">
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Email</span>
-              <span className="text-xs font-bold truncate">Get in touch</span>
-            </div>
-          </a>
+          ))}
         </div>
 
         <div className="mt-8 space-y-6">
           <section>
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Professional Bio</h3>
             <p className="text-sm text-slate-600 leading-relaxed italic">
-              "{profile.bio || "Dedicated professional committed to excellence and strategic growth."}"
+              "{profile.bio || `I'm ${profile.firstName}! Connecting with me is just a tap away.`}"
             </p>
           </section>
 
@@ -85,13 +133,15 @@ export function ExecutiveLayout({ profile, allLinks, getIcon, getUrl }: any) {
                 <a
                   key={item.id}
                   href={getUrl(item)}
-                  className="flex items-center p-3 rounded-lg hover:bg-slate-50 transition-all group border-l-2 border-transparent hover:border-primary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center p-3 rounded-lg transition-all border-l-2 border-transparent active:border-primary active:bg-slate-50"
                 >
-                  <div className="mr-4 text-slate-400 group-hover:text-primary transition-colors">
+                  <div className="mr-4 text-slate-400 transition-colors">
                     {getIcon(item.type, item.platform)}
                   </div>
                   <span className="text-sm font-semibold text-slate-700 flex-1">{item.title || item.label || item.platform}</span>
-                  <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-slate-500" />
+                  <ChevronRight className="h-4 w-4 text-slate-300" />
                 </a>
               ))}
             </div>
@@ -100,8 +150,8 @@ export function ExecutiveLayout({ profile, allLinks, getIcon, getUrl }: any) {
 
         <div className="sticky bottom-0 left-0 w-full p-6 pt-0 mt-auto bg-white/80 backdrop-blur-md">
           <a href={`/api/vcard/${profile.username}`}>
-            <Button className="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-xl h-12 font-semibold shadow-lg">
-              <Download className="h-4 w-4 mr-2" />
+            <Button className="w-full bg-slate-900 text-white rounded-2xl h-16 font-black text-sm uppercase tracking-widest shadow-2xl flex items-center justify-center gap-3 active:scale-95 transition-transform">
+              <Download className="h-5 w-5" />
               Add to Phonebook
             </Button>
           </a>

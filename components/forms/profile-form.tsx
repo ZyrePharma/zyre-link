@@ -55,6 +55,26 @@ const profileSchema = z.object({
     label: z.string().min(1, "Label is required"),
     value: z.string().min(1, "Value is required"),
     isPrimary: z.boolean().default(false),
+  }).superRefine((data, ctx) => {
+    if (['PHONE', 'WHATSAPP', 'VIBER', 'TELEGRAM'].includes(data.type)) {
+      const digitsOnly = data.value.replace(/\D/g, "");
+      if (digitsOnly.length !== 11) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Must be exactly 11 digits",
+          path: ["value"],
+        });
+      }
+    } else if (data.type === 'EMAIL') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(data.value)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Invalid email format",
+          path: ["value"],
+        });
+      }
+    }
   })).default([]),
   socialLinks: z.array(z.object({
     id: z.string().optional(),
@@ -76,9 +96,28 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 interface ProfileFormProps {
   userId?: string; // Optional userId for admin editing another user
   initialData?: any; // The initial data from prisma `user.profile`
+  userEmail?: string; // The user's login email to use as default contact
 }
 
-export function ProfileForm({ userId, initialData }: ProfileFormProps) {
+const CONTACT_LABEL_OPTIONS: Record<ContactType, string[]> = {
+  PHONE: ["Work", "Personal", "Mobile", "Office", "Other"],
+  WHATSAPP: ["Work", "Personal", "Other"],
+  VIBER: ["Work", "Personal", "Other"],
+  TELEGRAM: ["Work", "Personal", "Other"],
+  EMAIL: ["Work", "Personal", "Other"],
+  ADDRESS: ["Work", "Home", "Other"],
+};
+
+const CONTACT_TYPE_LABELS: Record<ContactType, string> = {
+  PHONE: "Phone",
+  EMAIL: "Email",
+  WHATSAPP: "WhatsApp",
+  VIBER: "Viber",
+  TELEGRAM: "Telegram",
+  ADDRESS: "Address",
+};
+
+export function ProfileForm({ userId, initialData, userEmail }: ProfileFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -87,16 +126,20 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
   const coverInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
+  const [host, setHost] = useState("");
   useEffect(() => {
     setMounted(true);
+    if (typeof window !== "undefined") {
+      setHost(window.location.host);
+    }
   }, []);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema) as any,
     defaultValues: {
       username: initialData?.username ?? "",
-      firstName: initialData?.firstName ?? "",
-      lastName: initialData?.lastName ?? "",
+      firstName: initialData?.firstName || "",
+      lastName: initialData?.lastName || "",
       jobTitle: initialData?.jobTitle ?? "",
       department: initialData?.department ?? "",
       bio: initialData?.bio ?? "",
@@ -105,7 +148,15 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
       extension: initialData?.extension ?? "",
       profilePhotoUrl: initialData?.profilePhotoUrl ?? "",
       coverPhotoUrl: initialData?.coverPhotoUrl ?? "",
-      contactMethods: initialData?.contactMethods ?? [],
+      contactMethods: (initialData?.contactMethods?.length > 0)
+        ? initialData.contactMethods.map((m: any) => ({
+            id: m.id,
+            type: m.type,
+            label: m.label,
+            value: m.value,
+            isPrimary: m.isPrimary,
+          }))
+        : (userEmail ? [{ type: ContactType.EMAIL, label: "Work", value: userEmail, isPrimary: true }] : []),
       socialLinks: initialData?.socialLinks ?? [],
       customLinks: initialData?.customLinks ?? [],
       autoDownloadVcf: initialData?.autoDownloadVcf ?? false,
@@ -323,7 +374,7 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
                     <FormControl>
                       <div className="flex items-center space-x-2 bg-background rounded-lg px-3 border border-border focus-within:ring-1 ring-primary/30">
                         <span className="text-muted-foreground text-sm py-2">
-                          {mounted ? window.location.host : ""}/profile/
+                          {host || "..."}/profile/
                         </span>
                         <Input {...field} className="border-none shadow-none focus-visible:ring-0 p-0 h-9" />
                       </div>
@@ -549,10 +600,20 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
                               <div className="sm:col-span-3">
                                 <select 
                                   {...field}
-                                  className="w-full h-9 rounded-lg border border-border bg-background px-2 text-xs focus:ring-1 ring-primary/20 outline-none"
+                                  onChange={(e) => {
+                                    field.onChange(e);
+                                    const newType = e.target.value as ContactType;
+                                    const availableLabels = CONTACT_LABEL_OPTIONS[newType];
+                                    if (availableLabels && availableLabels.length > 0) {
+                                      form.setValue(`contactMethods.${index}.label`, availableLabels[0]);
+                                    }
+                                  }}
+                                  className="w-full h-9 rounded-lg border border-border bg-background px-2 text-xs focus:ring-1 ring-primary/20 outline-none capitalize"
                                 >
                                   {Object.values(ContactType).map((type) => (
-                                    <option key={type} value={type}>{type}</option>
+                                    <option key={type} value={type}>
+                                      {CONTACT_TYPE_LABELS[type as ContactType] || type}
+                                    </option>
                                   ))}
                                 </select>
                               </div>
@@ -563,7 +624,14 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
                             name={`contactMethods.${index}.label`}
                             render={({ field }) => (
                               <div className="sm:col-span-3">
-                                <Input {...field} placeholder="Label (e.g. Work)" className="h-9 text-xs border-none shadow-none bg-background focus-visible:ring-1" />
+                                <select 
+                                  {...field}
+                                  className="w-full h-9 rounded-lg border border-border bg-background px-2 text-xs focus:ring-1 ring-primary/20 outline-none"
+                                >
+                                  {(CONTACT_LABEL_OPTIONS[form.watch(`contactMethods.${index}.type`) as ContactType] || ["Other"]).map(opt => (
+                                    <option key={opt} value={opt}>{opt}</option>
+                                  ))}
+                                </select>
                               </div>
                             )}
                           />
@@ -571,9 +639,37 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
                             control={form.control as any}
                             name={`contactMethods.${index}.value`}
                             render={({ field }) => (
-                              <div className="sm:col-span-6">
-                                <Input {...field} placeholder="Value" className="h-9 text-xs border-none shadow-none bg-background focus-visible:ring-1" />
-                              </div>
+                              <FormItem className="sm:col-span-6">
+                                <FormControl>
+                                  <Input 
+                                    {...field} 
+                                    placeholder={
+                                      form.watch(`contactMethods.${index}.type`) === 'EMAIL' 
+                                        ? "email@example.com" 
+                                        : "09123456789"
+                                    }
+                                    type={
+                                      form.watch(`contactMethods.${index}.type`) === 'EMAIL' 
+                                        ? "email" 
+                                        : (['PHONE', 'WHATSAPP', 'VIBER', 'TELEGRAM'].includes(form.watch(`contactMethods.${index}.type`)) ? "tel" : "text")
+                                    }
+                                    maxLength={['PHONE', 'WHATSAPP', 'VIBER', 'TELEGRAM'].includes(form.watch(`contactMethods.${index}.type`)) ? 11 : undefined}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      const type = form.getValues(`contactMethods.${index}.type`);
+                                      if (['PHONE', 'WHATSAPP', 'VIBER', 'TELEGRAM'].includes(type)) {
+                                        // Only allow digits and max 11
+                                        const numericValue = val.replace(/\D/g, "").slice(0, 11);
+                                        field.onChange(numericValue);
+                                      } else {
+                                        field.onChange(val);
+                                      }
+                                    }}
+                                    className="h-9 text-xs border-none shadow-none bg-background focus-visible:ring-1" 
+                                  />
+                                </FormControl>
+                                <FormMessage className="text-[10px]" />
+                              </FormItem>
                             )}
                           />
                         </div>

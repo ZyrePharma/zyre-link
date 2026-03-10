@@ -1,13 +1,35 @@
 import { prisma } from "@/lib/prisma";
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, CreditCard, Activity, TrendingUp } from "lucide-react";
 import { ActivityChart } from "@/components/admin/activity-chart";
 import { SystemHealth } from "@/components/admin/system-health";
 
 export default async function AdminDashboardPage() {
-  const userCount = await prisma.user.count();
-  const profileCount = await prisma.profile.count();
-  const cardCount = await prisma.nfcCard.count();
+  // Date ranges for MoM comparison
+  const now = new Date();
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
+  const [
+    userCount, 
+    prevUserCount,
+    profileCount, 
+    prevProfileCount,
+    cardCount, 
+    prevCardCount,
+    recentViews,
+    prevRecentViews
+  ] = await Promise.all([
+    prisma.user.count(),
+    prisma.user.count({ where: { createdAt: { lt: thirtyDaysAgo } } }),
+    prisma.profile.count({ where: { isActive: true } }),
+    prisma.profile.count({ where: { isActive: true, createdAt: { lt: thirtyDaysAgo } } }),
+    prisma.nfcCard.count({ where: { isActivated: true } }),
+    prisma.nfcCard.count({ where: { activatedAt: { lt: thirtyDaysAgo } } }),
+    prisma.profileView.count({ where: { viewedAt: { gte: thirtyDaysAgo } } }),
+    prisma.profileView.count({ where: { viewedAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } } }),
+  ]);
 
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
@@ -15,6 +37,11 @@ export default async function AdminDashboardPage() {
     d.setHours(0, 0, 0, 0);
     return d;
   });
+
+  const calculateGrowth = (current: number, previous: number) => {
+    if (previous === 0) return current > 0 ? 100 : 0;
+    return Math.round(((current - previous) / previous) * 1000) / 10;
+  };
 
   const activityData = await Promise.all(
     last7Days.map(async (date) => {
@@ -38,11 +65,44 @@ export default async function AdminDashboardPage() {
     })
   );
 
+  const formatValue = (val: number) => {
+    if (val >= 1000) return `${(val / 1000).toFixed(1)}k`;
+    return val.toString();
+  };
+
   const stats = [
-    { label: "Total Employees", value: userCount, icon: Users, color: "text-primary", accent: "bg-primary/10" },
-    { label: "Active Profiles", value: profileCount, icon: Activity, color: "text-secondary", accent: "bg-secondary/10" },
-    { label: "NFC Cards Issued", value: cardCount, icon: CreditCard, color: "text-amber-500", accent: "bg-amber-500/10" },
-    { label: "Recent Views", value: "1.2k", icon: TrendingUp, color: "text-emerald-500", accent: "bg-emerald-500/10" },
+    { 
+      label: "Total Employees", 
+      value: formatValue(userCount), 
+      growth: calculateGrowth(userCount, prevUserCount),
+      icon: Users, 
+      color: "text-primary", 
+      accent: "bg-primary/10" 
+    },
+    { 
+      label: "Active Profiles", 
+      value: formatValue(profileCount), 
+      growth: calculateGrowth(profileCount, prevProfileCount),
+      icon: Activity, 
+      color: "text-secondary", 
+      accent: "bg-secondary/10" 
+    },
+    { 
+      label: "NFC Cards Issued", 
+      value: formatValue(cardCount), 
+      growth: calculateGrowth(cardCount, prevCardCount),
+      icon: CreditCard, 
+      color: "text-amber-500", 
+      accent: "bg-amber-500/10" 
+    },
+    { 
+      label: "Recent Views", 
+      value: formatValue(recentViews), 
+      growth: calculateGrowth(recentViews, prevRecentViews),
+      icon: TrendingUp, 
+      color: "text-emerald-500", 
+      accent: "bg-emerald-500/10" 
+    },
   ];
 
   return (
@@ -62,8 +122,12 @@ export default async function AdminDashboardPage() {
             </CardHeader>
             <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
               <div className="text-xl md:text-2xl font-bold">{stat.value}</div>
-              <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
-                +2.5% from last month
+              <p className={cn(
+                "text-[10px] md:text-xs mt-1 font-medium",
+                stat.growth >= 0 ? "text-emerald-600" : "text-destructive"
+              )}>
+                {stat.growth >= 0 ? '+' : ''}{stat.growth}% 
+                <span className="text-muted-foreground font-normal ml-1">vs last month</span>
               </p>
             </CardContent>
           </Card>
