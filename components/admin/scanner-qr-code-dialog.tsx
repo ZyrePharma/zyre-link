@@ -38,7 +38,6 @@ export function ScannerQRCodeDialog() {
 
       const baseUrl = window.location.origin;
       const scannerUrl = `${baseUrl}/scanner?token=${data.token}`;
-      console.log("Scanner URL with token:", scannerUrl);
       
       const qrCodeUrl = await QRCode.toDataURL(scannerUrl, {
         width: 300,

@@ -13,7 +13,9 @@ export default auth((req) => {
   
   if (isAuthPage) {
     if (isLoggedIn) {
-      return Response.redirect(new URL("/dashboard", req.nextUrl));
+      const userRole = (req.auth?.user as any)?.role;
+      const redirectUrl = userRole === "ADMIN" ? "/admin" : "/dashboard";
+      return Response.redirect(new URL(redirectUrl, req.nextUrl));
     }
     return;
   }

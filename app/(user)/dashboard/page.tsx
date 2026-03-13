@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,10 @@ import { subDays, startOfDay, format, isSameDay } from "date-fns";
 
 export default async function DashboardPage() {
   const session = await auth();
+
+  if ((session?.user as any)?.role === "ADMIN") {
+    redirect("/admin");
+  }
   
   const user = await prisma.user.findUnique({
     where: { id: session?.user?.id },

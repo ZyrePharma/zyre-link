@@ -8,23 +8,21 @@ import { ShareButton } from "@/components/profile/share-button";
 export function ClassicLayout({ profile, allLinks, getIcon, getUrl }: any) {
   return (
     <div className="w-full md:max-w-md bg-white min-h-screen md:min-h-0 md:rounded-[2.5rem] md:shadow-2xl md:my-4 overflow-hidden flex flex-col relative text-gray-900">
-      {profile.coverPhotoUrl && (
-        <Image 
-          src={profile.coverPhotoUrl} 
-          alt="Background" 
-          fill 
-          className="object-cover absolute inset-0 z-0 pointer-events-none"
-          priority
-        />
-      )}
-      {profile.coverPhotoUrl && <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-0" />}
 
       {/* Cover Section */}
       <div className={cn(
         "h-80 flex items-center justify-center relative overflow-hidden z-10",
         !profile.coverPhotoUrl && "bg-white border-b-2 border-primary"
       )}>
-        {!profile.coverPhotoUrl && (
+        {profile.coverPhotoUrl ? (
+          <Image 
+            src={profile.coverPhotoUrl} 
+            alt="Cover" 
+            fill 
+            className="object-cover"
+            priority
+          />
+        ) : (
           <>
             {profile.user.company?.logoUrl ? (
               <div className="relative h-32 w-96 px-4">

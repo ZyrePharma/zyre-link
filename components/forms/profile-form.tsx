@@ -402,176 +402,7 @@ export function ProfileForm({ userId, initialData, userEmail }: ProfileFormProps
                 )}
               />
 
-              <div className="space-y-4">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">Profile Layout</h3>
-                <FormField
-                  control={form.control as any}
-                  name="layout"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                          {[
-                            { id: 'classic', label: 'Classic' },
-                            { id: 'modern', label: 'Modern' },
-                            { id: 'executive', label: 'Exec' },
-                            { id: 'social', label: 'Social' },
-                            { id: 'card', label: 'Card' },
-                          ].map((layout) => (
-                            <button
-                              key={layout.id}
-                              type="button"
-                              onClick={() => field.onChange(layout.id)}
-                              className={cn(
-                                "flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all group/layout",
-                                field.value === layout.id 
-                                  ? "border-primary bg-primary/5 text-primary scale-[1.02] shadow-sm" 
-                                  : "border-border bg-background text-muted-foreground hover:border-primary/50 hover:bg-primary/5"
-                              )}
-                            >
-                              <div className={cn(
-                                "w-full aspect-[4/5] rounded-lg mb-2 border border-border/50 overflow-hidden relative shadow-inner bg-white",
-                              )}>
-                                {/* CSS Previews */}
-                                {layout.id === 'classic' && (
-                                  <div className="w-full h-full flex flex-col items-center p-1 pt-3 scale-[0.8]">
-                                    <div className="w-full h-8 bg-gray-100 rounded-t-sm mb-2" />
-                                    <div className="w-8 h-8 rounded-full bg-primary border-2 border-white -mt-5 shadow-sm" />
-                                    <div className="w-12 h-1 bg-gray-300 rounded-full mt-2" />
-                                    <div className="w-8 h-1 bg-gray-200 rounded-full mt-1" />
-                                    <div className="mt-2 space-y-1 w-full px-2">
-                                      <div className="w-full h-3 bg-gray-100 rounded-sm" />
-                                      <div className="w-full h-3 bg-gray-100 rounded-sm" />
-                                    </div>
-                                  </div>
-                                )}
-                                {layout.id === 'modern' && (
-                                  <div className="w-full h-full flex flex-col items-center p-1 pt-6 scale-[0.8] bg-gray-50/50">
-                                    <div className="absolute top-0 w-full h-8 bg-primary/5" />
-                                    <div className="w-10 h-10 rounded-full bg-primary ring-2 ring-white shadow-md z-10" />
-                                    <div className="w-14 h-1.5 bg-gray-900 rounded-full mt-3 z-10" />
-                                    <div className="mt-4 space-y-2 w-full px-2">
-                                      <div className="w-full h-4 bg-white border border-gray-100 rounded-xl shadow-xs" />
-                                      <div className="w-full h-4 bg-white border border-gray-100 rounded-xl shadow-xs" />
-                                    </div>
-                                  </div>
-                                )}
-                                {layout.id === 'executive' && (
-                                  <div className="w-full h-full flex flex-col p-1 pt-3 scale-[0.8]">
-                                    <div className="w-full h-8 bg-slate-900 rounded-t-sm mb-2" />
-                                    <div className="px-2 -mt-6">
-                                      <div className="w-8 h-8 rounded-lg bg-white border-2 border-slate-200 shadow-sm" />
-                                    </div>
-                                    <div className="mt-2 px-2 space-y-1">
-                                      <div className="w-14 h-2 bg-slate-800 rounded-sm" />
-                                      <div className="w-10 h-1 bg-primary rounded-full" />
-                                      <div className="w-full h-1 bg-slate-100 rounded-full mt-2" />
-                                      <div className="w-[80%] h-1 bg-slate-100 rounded-full" />
-                                    </div>
-                                    <div className="mt-3 px-2 flex gap-1">
-                                      <div className="w-full h-4 bg-slate-50 rounded-md border border-slate-100" />
-                                      <div className="w-full h-4 bg-slate-50 rounded-md border border-slate-100" />
-                                    </div>
-                                  </div>
-                                )}
-                                {layout.id === 'social' && (
-                                  <div className="w-full h-full flex flex-col items-center p-1 pt-4 scale-[0.8] bg-slate-900">
-                                    <div className="absolute inset-0 bg-primary/10 opacity-50" />
-                                    <div className="w-10 h-10 rounded-full border-2 border-primary/50 p-0.5 z-10">
-                                      <div className="w-full h-full rounded-full bg-slate-800" />
-                                    </div>
-                                    <div className="w-12 h-1.5 bg-white rounded-full mt-3 z-10" />
-                                    <div className="mt-4 space-y-2 w-full px-2 z-10">
-                                      <div className="w-full h-5 bg-white/10 rounded-3xl border border-white/10" />
-                                      <div className="w-full h-5 bg-white/10 rounded-3xl border border-white/10" />
-                                      <div className="w-full h-5 bg-white/10 rounded-3xl border border-white/10" />
-                                    </div>
-                                  </div>
-                                )}
-                                {layout.id === 'card' && (
-                                  <div className="w-full h-full flex flex-col p-2 scale-[0.8] bg-neutral-100">
-                                    <div className="w-full h-24 bg-white rounded-xl shadow-sm border border-white flex flex-col items-center pt-2">
-                                      <div className="w-8 h-8 rounded-full bg-primary/10 mx-auto" />
-                                      <div className="w-10 h-1 bg-gray-900 rounded-full mt-2" />
-                                      <div className="flex gap-1 mt-2">
-                                        <div className="w-3 h-3 rounded-md bg-gray-900" />
-                                        <div className="w-3 h-3 rounded-md bg-gray-900" />
-                                        <div className="w-3 h-3 rounded-md bg-gray-900" />
-                                      </div>
-                                    </div>
-                                    <div className="mt-2 grid grid-cols-2 gap-2">
-                                      <div className="h-8 bg-white rounded-lg shadow-xs" />
-                                      <div className="h-8 bg-white rounded-lg shadow-xs" />
-                                    </div>
-                                  </div>
-                                )}
 
-                                {field.value === layout.id && (
-                                  <div className="absolute inset-0 bg-primary/10 flex items-center justify-center z-20">
-                                    <div className="bg-primary text-white p-1 rounded-full shadow-lg">
-                                      <CheckCircle2 className="h-4 w-4" />
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                              <span className="text-[10px] font-bold uppercase tracking-widest">{layout.label}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">Company Details</h3>
-                <div className="grid grid-cols-1 gap-4">
-                  <FormField
-                    control={form.control as any}
-                    name="teamName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <div className="flex items-center p-3 rounded-xl bg-background border border-border focus-within:ring-1 ring-primary/30">
-                            <Users className="h-4 w-4 text-primary mr-3 shrink-0" />
-                            <Input {...field} placeholder="Team Name" className="border-none shadow-none focus-visible:ring-0 p-0 h-5 text-sm font-medium" />
-                          </div>
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control as any}
-                    name="officeLocation"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <div className="flex items-center p-3 rounded-xl bg-background border border-border focus-within:ring-1 ring-primary/30">
-                            <MapPin className="h-4 w-4 text-primary mr-3 shrink-0" />
-                            <Input {...field} placeholder="Office Location" className="border-none shadow-none focus-visible:ring-0 p-0 h-5 text-sm font-medium" />
-                          </div>
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control as any}
-                    name="extension"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <div className="flex items-center p-3 rounded-xl bg-background border border-border focus-within:ring-1 ring-primary/30">
-                            <Hash className="h-4 w-4 text-primary mr-3 shrink-0" />
-                            <Input {...field} placeholder="Internal Extension" className="border-none shadow-none focus-visible:ring-0 p-0 h-5 text-sm font-medium" />
-                          </div>
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
 
               {/* Dynamic Sections: Contacts, Socials, Links */}
               <div className="space-y-8 pt-4">
@@ -840,6 +671,128 @@ export function ProfileForm({ userId, initialData, userEmail }: ProfileFormProps
               
             </div>
 
+              <div className="space-y-4">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">Profile Layout</h3>
+                <FormField
+                  control={form.control as any}
+                  name="layout"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                          {[
+                            { id: 'classic', label: 'Classic' },
+                            { id: 'modern', label: 'Modern' },
+                            { id: 'executive', label: 'Exec' },
+                            { id: 'social', label: 'Social' },
+                            { id: 'card', label: 'Card' },
+                          ].map((layout) => (
+                            <button
+                              key={layout.id}
+                              type="button"
+                              onClick={() => field.onChange(layout.id)}
+                              className={cn(
+                                "flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all group/layout",
+                                field.value === layout.id 
+                                  ? "border-primary bg-primary/5 text-primary scale-[1.02] shadow-sm" 
+                                  : "border-border bg-background text-muted-foreground hover:border-primary/50 hover:bg-primary/5"
+                              )}
+                            >
+                              <div className={cn(
+                                "w-full aspect-[4/5] rounded-lg mb-2 border border-border/50 overflow-hidden relative shadow-inner bg-white",
+                              )}>
+                                {/* CSS Previews */}
+                                {layout.id === 'classic' && (
+                                  <div className="w-full h-full flex flex-col items-center p-1 pt-3 scale-[0.8]">
+                                    <div className="w-full h-8 bg-gray-100 rounded-t-sm mb-2" />
+                                    <div className="w-8 h-8 rounded-full bg-primary border-2 border-white -mt-5 shadow-sm" />
+                                    <div className="w-12 h-1 bg-gray-300 rounded-full mt-2" />
+                                    <div className="w-8 h-1 bg-gray-200 rounded-full mt-1" />
+                                    <div className="mt-2 space-y-1 w-full px-2">
+                                      <div className="w-full h-3 bg-gray-100 rounded-sm" />
+                                      <div className="w-full h-3 bg-gray-100 rounded-sm" />
+                                    </div>
+                                  </div>
+                                )}
+                                {layout.id === 'modern' && (
+                                  <div className="w-full h-full flex flex-col items-center p-1 pt-6 scale-[0.8] bg-gray-50/50">
+                                    <div className="absolute top-0 w-full h-8 bg-primary/5" />
+                                    <div className="w-10 h-10 rounded-full bg-primary ring-2 ring-white shadow-md z-10" />
+                                    <div className="w-14 h-1.5 bg-gray-900 rounded-full mt-3 z-10" />
+                                    <div className="mt-4 space-y-2 w-full px-2">
+                                      <div className="w-full h-4 bg-white border border-gray-100 rounded-xl shadow-xs" />
+                                      <div className="w-full h-4 bg-white border border-gray-100 rounded-xl shadow-xs" />
+                                    </div>
+                                  </div>
+                                )}
+                                {layout.id === 'executive' && (
+                                  <div className="w-full h-full flex flex-col p-1 pt-3 scale-[0.8]">
+                                    <div className="w-full h-8 bg-slate-900 rounded-t-sm mb-2" />
+                                    <div className="px-2 -mt-6">
+                                      <div className="w-8 h-8 rounded-lg bg-white border-2 border-slate-200 shadow-sm" />
+                                    </div>
+                                    <div className="mt-2 px-2 space-y-1">
+                                      <div className="w-14 h-2 bg-slate-800 rounded-sm" />
+                                      <div className="w-10 h-1 bg-primary rounded-full" />
+                                      <div className="w-full h-1 bg-slate-100 rounded-full mt-2" />
+                                      <div className="w-[80%] h-1 bg-slate-100 rounded-full" />
+                                    </div>
+                                    <div className="mt-3 px-2 flex gap-1">
+                                      <div className="w-full h-4 bg-slate-50 rounded-md border border-slate-100" />
+                                      <div className="w-full h-4 bg-slate-50 rounded-md border border-slate-100" />
+                                    </div>
+                                  </div>
+                                )}
+                                {layout.id === 'social' && (
+                                  <div className="w-full h-full flex flex-col items-center p-1 pt-4 scale-[0.8] bg-slate-900">
+                                    <div className="absolute inset-0 bg-primary/10 opacity-50" />
+                                    <div className="w-10 h-10 rounded-full border-2 border-primary/50 p-0.5 z-10">
+                                      <div className="w-full h-full rounded-full bg-slate-800" />
+                                    </div>
+                                    <div className="w-12 h-1.5 bg-white rounded-full mt-3 z-10" />
+                                    <div className="mt-4 space-y-2 w-full px-2 z-10">
+                                      <div className="w-full h-5 bg-white/10 rounded-3xl border border-white/10" />
+                                      <div className="w-full h-5 bg-white/10 rounded-3xl border border-white/10" />
+                                      <div className="w-full h-5 bg-white/10 rounded-3xl border border-white/10" />
+                                    </div>
+                                  </div>
+                                )}
+                                {layout.id === 'card' && (
+                                  <div className="w-full h-full flex flex-col p-2 scale-[0.8] bg-neutral-100">
+                                    <div className="w-full h-24 bg-white rounded-xl shadow-sm border border-white flex flex-col items-center pt-2">
+                                      <div className="w-8 h-8 rounded-full bg-primary/10 mx-auto" />
+                                      <div className="w-10 h-1 bg-gray-900 rounded-full mt-2" />
+                                      <div className="flex gap-1 mt-2">
+                                        <div className="w-3 h-3 rounded-md bg-gray-900" />
+                                        <div className="w-3 h-3 rounded-md bg-gray-900" />
+                                        <div className="w-3 h-3 rounded-md bg-gray-900" />
+                                      </div>
+                                    </div>
+                                    <div className="mt-2 grid grid-cols-2 gap-2">
+                                      <div className="h-8 bg-white rounded-lg shadow-xs" />
+                                      <div className="h-8 bg-white rounded-lg shadow-xs" />
+                                    </div>
+                                  </div>
+                                )}
+
+                                {field.value === layout.id && (
+                                  <div className="absolute inset-0 bg-primary/10 flex items-center justify-center z-20">
+                                    <div className="bg-primary text-white p-1 rounded-full shadow-lg">
+                                      <CheckCircle2 className="h-4 w-4" />
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              <span className="text-[10px] font-bold uppercase tracking-widest">{layout.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             <div className="flex gap-4 pt-4">
               <Button 
                 type="button" 

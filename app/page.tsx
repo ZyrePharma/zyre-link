@@ -5,7 +5,12 @@ export default async function LandingPage() {
   const session = await auth();
 
   if (session) {
-    redirect("/dashboard");
+    const userRole = (session.user as any)?.role;
+    if (userRole === "ADMIN") {
+      redirect("/admin");
+    } else {
+      redirect("/dashboard");
+    }
   } else {
     redirect("/login");
   }
