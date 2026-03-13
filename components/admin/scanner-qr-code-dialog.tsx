@@ -37,7 +37,8 @@ export function ScannerQRCodeDialog() {
       setExpiresAt(new Date(data.expires));
 
       const baseUrl = window.location.origin;
-      const scannerUrl = `${baseUrl}/admin/cards/scanner?token=${data.token}`;
+      const scannerUrl = `${baseUrl}/scanner?token=${data.token}`;
+      console.log("Scanner URL with token:", scannerUrl);
       
       const qrCodeUrl = await QRCode.toDataURL(scannerUrl, {
         width: 300,

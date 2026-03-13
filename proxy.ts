@@ -9,6 +9,7 @@ export default auth((req) => {
   const isPublicProfile = req.nextUrl.pathname.startsWith("/profile/");
   const isCardRedirect = req.nextUrl.pathname.startsWith("/card/");
   const isInvitePage = req.nextUrl.pathname.startsWith("/invite/");
+  const isScannerPage = req.nextUrl.pathname.startsWith("/scanner");
   
   if (isAuthPage) {
     if (isLoggedIn) {
@@ -17,7 +18,7 @@ export default auth((req) => {
     return;
   }
 
-  if (!isLoggedIn && !isPublicProfile && !isCardRedirect && !isInvitePage && req.nextUrl.pathname !== "/") {
+  if (!isLoggedIn && !isPublicProfile && !isCardRedirect && !isInvitePage && !isScannerPage && req.nextUrl.pathname !== "/") {
     return Response.redirect(new URL("/login", req.nextUrl));
   }
 });
