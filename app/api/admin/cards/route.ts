@@ -5,13 +5,30 @@ import { nanoid } from "nanoid";
 
 export async function POST(req: NextRequest) {
   try {
+    const { cardUid, token } = await req.json();
+
+    // Check if authenticated as admin
     const session = await auth();
+    const isAdmin = session && (session.user as any).role === "ADMIN";
 
-    if (!session || (session.user as any).role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // If not admin, check for valid scanner token
+    if (!isAdmin) {
+      if (!token) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+
+      const validToken = await prisma.verificationToken.findFirst({
+        where: {
+          token,
+          identifier: "scanner_session",
+          expires: { gt: new Date() }
+        }
+      });
+
+      if (!validToken) {
+        return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
+      }
     }
-
-    const { cardUid } = await req.json();
 
     if (!cardUid) {
       return NextResponse.json({ error: "Serial number is required" }, { status: 400 });
