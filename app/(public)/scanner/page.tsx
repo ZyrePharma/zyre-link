@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, Smartphone, CheckCircle2, AlertCircle, Scan } from "lucide-react";
 
-export default function MobileScannerPage() {
+function ScannerContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   
@@ -212,5 +212,18 @@ export default function MobileScannerPage() {
         Zyre IT Security Protocol • Session Enabled
       </p>
     </div>
+  );
+}
+
+export default function MobileScannerPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-screen p-6">
+        <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+        <p className="text-muted-foreground animate-pulse">Initializing scanner...</p>
+      </div>
+    }>
+      <ScannerContent />
+    </Suspense>
   );
 }
